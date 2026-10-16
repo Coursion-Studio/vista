@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vista — Eye and movement breaks for the Mac</title>
+  <meta name="description" content="A menu-bar app that runs two break rhythms on separate clocks — 20-20-20 for your eyes, up and moving every 45 minutes — and waits for a good moment before either one lands. Coming soon for macOS 15." />
+  <link rel="canonical" href="https://vista.coursion.studio/" />
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="stylesheet" href="stage.css?v=1d5ceac846" />
+  <link rel="stylesheet" href="home.css?v=61ed5e37ab" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vista.coursion.studio/" />
+  <meta property="og:title" content="Vista — Eye and movement breaks for the Mac" />
+  <meta property="og:description" content="A menu-bar app that runs two break rhythms on separate clocks — 20-20-20 for your eyes, up and moving every 45 minutes — and waits for a good moment before either one lands. Coming soon for macOS 15." />
+  <meta property="og:image" content="https://vista.coursion.studio/icon.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="theme-color" content="#0E0C14" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Vista",
+    "url": "https://vista.coursion.studio/",
+    "applicationCategory": "HealthApplication",
+    "operatingSystem": "macOS 15 or later",
+    "description": "A menu-bar app that runs two break rhythms on separate clocks — 20-20-20 for your eyes, up and moving every 45 minutes — and waits for a good moment before either one lands. Coming soon for macOS 15.",
+    "publisher": { "@type": "Organization", "name": "Coursion Studio" }
+  }
+  </script>
+  <script>document.documentElement.classList.add("js");window.__rv=setTimeout(function(){document.documentElement.classList.add("reveal-all")},4000);</script>
+  <script defer src="palettes.js?v=5d2d7b0998"></script>
+  <script>
+    window.STAGE = {
+      download: "mailto:support@coursion.studio?subject=Vista%20waitlist",
+      palette: "coral",
+      material: "ledger",
+      keyboard: { idle: ["controlL", "optionL", "commandL", "b"] }
+    };
+  </script>
+  <script defer src="stage.js?v=bda7026e0e"></script>
+  <script defer src="home.js?v=2e54eaacf4"></script>
+</head>
+<body>
+  <a class="skip" href="#rhythms">Skip to how it works</a>
+
+  <header class="stage-hero reveal" data-live>
+    <div class="mesh" aria-hidden="true"><i class="m1"></i><i class="m2"></i><i class="m3"></i><i class="m4"></i></div>
+    <div class="container">
+      <nav class="top">
+        <a class="brand" href="#"><img src="icon.png" alt="" width="26" height="26" /><span>Vista</span></a>
+        <div class="links">
+          <a href="#rhythms">How it works</a>
+          <a href="#break">The break</a>
+          <a href="#features">Features</a>
+          <a class="keep" href="#soon">Coming soon</a>
+        </div>
+      </nav>
+
+      <div class="fan" role="img" aria-label="The Vista icon with its four parts fanned out beneath it: eye breaks, move breaks, smart pause and insights.">
+        <img class="fan-icon" src="icon.png" alt="" width="160" height="160" fetchpriority="high" />
+        <span class="fan-item"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 6.5 12 6.5 21.5 12 21.5 12 18 17.5 12 17.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.9"/></svg></span><b>Eye breaks</b></span>
+        <span class="fan-item"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="4.3" r="2"/><path d="M14.4 8.2 11 9.8l-.9 4.1 2.8 1.9L14 21"/><path d="m12.9 15.8-3 2.2L8.4 21"/><path d="m11 9.8-3 1.4"/><path d="m14.4 10.6 2.7 1.8"/></svg></span><b>Move breaks</b></span>
+        <span class="fan-item"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M10.1 9.3v5.4M13.9 9.3v5.4"/></svg></span><b>Smart pause</b></span>
+        <span class="fan-item"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.2h16"/><path d="M7.3 16V12M12 16V6.6M16.7 16v-6.2"/></svg></span><b>Insights</b></span>
+      </div>
+
+      <div class="hero-copy">
+        <h1 class="rise" style="--d:.08s">Your eyes and your back,<br /> kept honest.</h1>
+        <p class="sub rise" style="--d:.14s">Two break rhythms on separate clocks: 20-20-20 for your eyes, up and moving every 45 minutes. Vista watches for a good moment and lands the break there.</p>
+        <div class="cta-row rise" style="--d:.2s">
+          <a class="btn primary" href="mailto:support@coursion.studio?subject=Vista%20waitlist" data-download>Email me when it ships</a>
+          <a class="btn outline" href="#rhythms">See how it works</a>
+        </div>
+        <p class="req-note rise" style="--d:.24s">macOS 15 (Sequoia) or later · Coming soon — there is no download yet</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="rhythms" class="sec sec-split reveal" data-stage="rhythms" aria-labelledby="rhythms-title">
+      <div class="glow" aria-hidden="true"></div>
+      <div class="container split">
+        <div class="split-copy">
+          <h2 id="rhythms-title" class="rise">Two rhythms, two clocks</h2>
+          <p class="rise" style="--d:.06s">Eyes every 20 minutes: look 20 feet away for 20 seconds. Body every 45: long enough to leave the chair. The two are tracked separately, so skipping one never moves the other.</p>
+          <p class="aside rise" style="--d:.1s">Pick a preset and both clocks reset to it.</p>
+        </div>
+        <div class="split-stage">
+          <div class="rhythms rise" style="--d:.08s">
+            <div class="dial" data-dial="eyes">
+              <svg class="dial-ring" viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="track" cx="60" cy="60" r="54" />
+                <circle class="arc" cx="60" cy="60" r="54" />
+              </svg>
+              <span class="dial-mid"><b class="dial-time">00:42</b><i class="dial-cap">Eyes</i></span>
+            </div>
+            <div class="dial" data-dial="body">
+              <svg class="dial-ring" viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="track" cx="60" cy="60" r="54" />
+                <circle class="arc" cx="60" cy="60" r="54" />
+              </svg>
+              <span class="dial-mid"><b class="dial-time">12:05</b><i class="dial-cap">Body</i></span>
+            </div>
+          </div>
+          <p class="rhythm-line rise" style="--d:.12s" aria-live="polite"><b class="rhythm-rule">Every 20 min for 20 s</b><span class="rhythm-sep">·</span><b class="rhythm-rule">Every 45 min for 5 min</b></p>
+          <div class="presets rise" style="--d:.16s" role="radiogroup" aria-label="Preset">
+            <button type="button" class="preset" role="radio" aria-checked="true" data-preset="balanced">Balanced</button>
+            <button type="button" class="preset" role="radio" aria-checked="false" data-preset="deepFocus">Deep focus</button>
+            <button type="button" class="preset" role="radio" aria-checked="false" data-preset="eyeCare">Eye care</button>
+            <button type="button" class="preset" role="radio" aria-checked="false" data-preset="wellness">Wellness</button>
+          </div>
+          <p class="stage-status preset-note rise" style="--d:.2s" aria-live="polite">20-20-20 for the eyes, up every 45 minutes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="hold" class="sec reveal" data-stage="hold" aria-labelledby="hold-title">
+      <div class="glow" aria-hidden="true"></div>
+      <div class="container">
+        <div class="holds-stage rise">
+          <div class="holds" role="group" aria-label="Reasons a break waits">
+            <button type="button" class="signal" data-signal="call" data-note="A microphone or camera in use — and it knows which app. A meeting you only listen to still counts.">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6.5" width="12" height="11" rx="2.5"/><path d="m15 11.5 5.5-3v11l-5.5-3z"/></svg>
+              <span class="signal-tx"><b>In a call</b><i>Zoom has the microphone</i></span>
+              <span class="signal-state">holding</span>
+            </button>
+            <button type="button" class="signal" data-signal="calendar" data-note="A busy event in your calendar, if you let Vista read it.">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3.5v3M16 3.5v3"/><path d="M12 12.8V15l1.8 1.1"/></svg>
+              <span class="signal-tx"><b>Busy in your calendar</b><i>Design review, until 15:00</i></span>
+              <span class="signal-state">holding</span>
+            </button>
+            <button type="button" class="signal" data-signal="focus" data-note="A macOS Focus with Vista's filter switched on, plus any deep-focus apps you list.">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="3.4"/><path d="M12 1.8v3M12 19.2v3M1.8 12h3M19.2 12h3"/></svg>
+              <span class="signal-tx"><b>Focus is on</b><i>Writing, with Vista's filter</i></span>
+              <span class="signal-state">holding</span>
+            </button>
+            <button type="button" class="signal" data-signal="fullscreen" data-note="A game, a film, a presentation — anything full screen, and video that keeps the display awake.">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M7.5 8.5h3v3M16.5 15.5h-3v-3"/></svg>
+              <span class="signal-tx"><b>Something full screen</b><i>A film, keeping the display awake</i></span>
+              <span class="signal-state">holding</span>
+            </button>
+            <button type="button" class="signal" data-signal="typing" data-note="It lands at the next pause, not mid-word.">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M8 14h8"/></svg>
+              <span class="signal-tx"><b>Mid-sentence</b><i>Still typing</i></span>
+              <span class="signal-state">holding</span>
+            </button>
+          </div>
+          <p class="hold-pill" aria-live="polite">
+            <span class="hold-dot" aria-hidden="true"></span>
+            <span class="hold-text">Eye break, holding</span>
+          </p>
+        </div>
+        <div class="sec-head center">
+          <h2 id="hold-title" class="rise" style="--d:.08s">It waits for a good moment</h2>
+          <p class="rise" style="--d:.14s">A break only interrupts what can be interrupted. When the last reason clears, Vista waits one more minute — then it lands.</p>
+          <p class="hold-note rise" style="--d:.2s" aria-live="polite">A microphone or camera in use — and it knows which app. A meeting you only listen to still counts.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="break" class="sec sec-split reveal" data-stage="break" aria-labelledby="break-title">
+      <div class="glow" aria-hidden="true"></div>
+      <div class="container split reverse">
+        <div class="split-copy">
+          <h2 id="break-title" class="rise">A break you can see past</h2>
+          <p class="rise" style="--d:.06s">Your desktop blurs instead of disappearing. One instruction, something to follow — a dot for near and far, paced blinking, a breathing circle, stepped stretches — and a ring that drains while you do it.</p>
+          <p class="aside rise" style="--d:.1s">A minute's warning first, with Start now, +1, +5 and +15. Snooze, skip or lock the screen from the break itself; Esc twice always ends one. Make skipping as easy or as hard as you like: Casual, Balanced, Hardcore.</p>
+        </div>
+        <div class="split-stage">
+          <div class="scene-fit rise" style="--d:.08s">
+            <div class="scene" data-phase="calm">
+              <div class="scene-desk" aria-hidden="true">
+                <div class="scene-menubar"><i style="width:26px"></i><i style="width:19px"></i><i style="width:24px"></i><span class="sp"></span><span class="mine"></span><i style="width:31px"></i></div>
+                <div class="scene-win">
+                  <div class="scene-bar"><i></i><i></i><i></i></div>
+                  <div class="scene-body"><span class="ln"></span><span class="ln" style="width:72%"></span><span class="ln" style="width:84%"></span><span class="ln" style="width:48%"></span><span class="ln" style="width:66%"></span></div>
+                </div>
+              </div>
+              <div class="heads-up" role="group" aria-label="Heads-up before a break">
+                <b>Eye break in a minute</b>
+                <span class="heads-row">
+                  <button type="button" class="hu hu-go" data-act="now">Start now</button>
+                  <button type="button" class="hu" data-act="1">+1</button>
+                  <button type="button" class="hu" data-act="5">+5</button>
+                  <button type="button" class="hu" data-act="15">+15</button>
+                </span>
+              </div>
+              <span class="pointer" aria-hidden="true">
+                <svg class="pointer-arrow" viewBox="0 0 15 22"><path d="M0 0v17.2l4.5-4 3 8.8 2.7-1-3-8.4h7.8z" fill="#000" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                <svg class="pointer-ring" viewBox="0 0 44 44"><circle class="track" cx="22" cy="22" r="18"/><circle class="arc" cx="22" cy="22" r="18"/></svg>
+                <b class="pointer-n">5</b>
+              </span>
+              <div class="break-card">
+                <svg class="break-ring" viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="54"/><circle class="arc" cx="60" cy="60" r="54"/></svg>
+                <span class="break-dot" aria-hidden="true"></span>
+                <b class="break-headline">Look out the window</b>
+                <span class="break-detail">Find the furthest thing you can see and rest on it.</span>
+                <span class="break-time">00:18</span>
+                <span class="break-row">
+                  <button type="button" class="hu" data-act="snooze">Snooze 5 min</button>
+                  <button type="button" class="hu" data-act="skip">Skip break</button>
+                  <button type="button" class="hu" data-act="lock">Lock screen</button>
+                </span>
+              </div>
+              <div class="scene-toast" aria-hidden="true">Back to work</div>
+            </div>
+          </div>
+          <p class="stage-status scene-status" aria-live="polite">Working.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="sec reveal" aria-labelledby="features-title">
+      <div class="container">
+        <div class="sec-head">
+          <h2 id="features-title" class="rise">The rest of it</h2>
+          <p class="rise" style="--d:.06s">Everything here is off, on or yours to set. Vista is a menu-bar app: no dock icon, no window to keep open.</p>
+        </div>
+        <ul class="feature-grid">
+          <li class="feature-card rise" style="--d:.08s">
+            <span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8.5h11V14a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z"/><path d="M16 10h1.6a2.2 2.2 0 1 1 0 4.4H16"/><path d="M7.8 3.5v2M11.4 3.5v2"/></svg></span>
+            <div><h3>Credit for time away</h3><p>Lunch, a meeting in another room, the school run — time away from the keyboard counts as a break. Vista says so, and lets you take it back if it wasn't one.</p></div>
+          </li>
+          <li class="feature-card rise" style="--d:.12s">
+            <span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3.5v3M16 3.5v3"/><path d="M12 12.8V15l1.8 1.1"/></svg></span>
+            <div><h3>Planned breaks</h3><p>Fixed times that are yours whatever the clocks say: lunch at one, a walk at four.</p></div>
+          </li>
+          <li class="feature-card rise" style="--d:.16s">
+            <span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 17.5V11a5.5 5.5 0 0 1 11 0v6.5"/><path d="M4.5 17.5h15M10 20.5h4"/></svg></span>
+            <div><h3>Posture and blink nudges</h3><p>Shoulders down, screen at eye level, and a reminder to blink — screens halve your blink rate. Both off until you switch them on.</p></div>
+          </li>
+          <li class="feature-card rise" style="--d:.2s">
+            <span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 1 0 17.2z" fill="currentColor" stroke="none"/></svg></span>
+            <div><h3>Your break, your way</h3><p>Blur, your wallpaper, a gradient or your own picture behind it. Your own messages, three chime pairs, a system sound or a file of your own.</p></div>
+          </li>
+          <li class="feature-card rise" style="--d:.24s">
+            <span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 3 6 13.2h5l-.9 7.8L18 10.4h-5.2z"/></svg></span>
+            <div><h3>Shortcuts and automations</h3><p>Two global hotkeys, Shortcuts actions, and a Shortcut, AppleScript or shell command of your own on every break start and end.</p></div>
+          </li>
+          <li class="feature-card rise" style="--d:.28s">
+            <span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="6.5" width="10" height="11" rx="3"/><path d="M9.6 6.5 10 3h4l.4 3.5M9.6 17.5 10 21h4l.4-3.5"/></svg></span>
+            <div><h3>On your wrist <span class="tier tier-mixed">With the watch app</span></h3><p>The Mac&#39;s break taps your wrist, walking about sixty steps ends a move break and counts it, and Done or Snooze works from the watch.</p><p class="card-note">Built, not yet verified on a paired watch.</p></div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="hotkeys" class="sec reveal" data-stage="keyboard" aria-labelledby="hotkeys-title">
+      <div class="glow" aria-hidden="true"></div>
+      <div class="container">
+        <div class="kb-stage rise"><div class="kb" aria-hidden="true"></div></div>
+        <div class="sec-head center">
+          <h2 id="hotkeys-title" class="rise" style="--d:.08s">Two shortcuts worth remembering</h2>
+          <p class="rise" style="--d:.14s"><span class="combo"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>B</kbd></span> takes a break right now. <span class="combo"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>P</kbd></span> pauses Vista, and starts it again.</p>
+          <p class="kb-pill rise" style="--d:.2s" aria-live="polite">
+            <span class="dot" aria-hidden="true"></span>
+            <span class="kb-text" data-touch="On a Mac, these keys light up as you type.">Type on your keyboard. The keys light up with yours.</span>
+            <span class="kb-pill-keys kb-keys"></span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="insights" class="sec sec-split reveal" data-stage="insights" aria-labelledby="insights-title">
+      <div class="glow" aria-hidden="true"></div>
+      <div class="container split">
+        <div class="split-copy">
+          <h2 id="insights-title" class="rise">A number for the day, one change a fortnight</h2>
+          <p class="rise" style="--d:.06s">Screen time, your longest stretch without a break, your typical one, where the time went, and a screen score out of a hundred. Seven days at a glance, and a summary on Friday.</p>
+          <p class="aside rise" style="--d:.1s">After a fortnight Vista reads your own record back to you and offers one change. Accept it in a click, or leave it alone.</p>
+        </div>
+        <div class="split-stage">
+          <div class="insight-card rise" style="--d:.08s">
+            <div class="insight-top">
+              <div class="score">
+                <svg class="score-ring" viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="52"/><circle class="arc" cx="60" cy="60" r="52"/></svg>
+                <span class="score-mid"><b>74</b><i>/ 100</i></span>
+              </div>
+              <ul class="insight-stats">
+                <li><b>6 h 12 min</b><i>At the screen</i></li>
+                <li><b>1 h 48 min</b><i>Longest stretch</i></li>
+                <li><b>42 min</b><i>Typical stretch</i></li>
+              </ul>
+            </div>
+            <div class="week" role="img" aria-label="The last seven days of screen time, Monday to Sunday, with today the tallest.">
+              <span class="bar" style="--h:54%"><i></i><em>M</em></span>
+              <span class="bar" style="--h:72%"><i></i><em>T</em></span>
+              <span class="bar" style="--h:61%"><i></i><em>W</em></span>
+              <span class="bar" style="--h:88%"><i></i><em>T</em></span>
+              <span class="bar" style="--h:46%"><i></i><em>F</em></span>
+              <span class="bar" style="--h:24%"><i></i><em>S</em></span>
+              <span class="bar now" style="--h:67%"><i></i><em>S</em></span>
+            </div>
+            <ul class="apps">
+              <li><b>Xcode</b><span class="apps-bar" style="--w:76%"><i></i></span><em>2 h 40</em></li>
+              <li><b>Safari</b><span class="apps-bar" style="--w:42%"><i></i></span><em>1 h 05</em></li>
+              <li><b>Mail</b><span class="apps-bar" style="--w:21%"><i></i></span><em>38 min</em></li>
+            </ul>
+          </div>
+          <div class="advice rise" style="--d:.14s">
+            <b class="advice-head">Eye breaks come too often for how you work</b>
+            <span class="advice-detail">You have skipped 9 of the last 18. Every 25 minutes may stick better than every 20.</span>
+            <span class="advice-row">
+              <button type="button" class="hu hu-go" data-advice="yes">Use 25 minutes</button>
+              <button type="button" class="hu" data-advice="no">Not now</button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="look" class="sec reveal" data-stage="appearance" aria-labelledby="look-title">
+      <div class="glow" aria-hidden="true"></div>
+      <div class="container">
+        <div class="look-stage rise">
+          <div class="lp" aria-hidden="true">
+            <div class="vp-head">
+              <span class="vp-brand">Vista</span>
+              <span class="vp-pill">Running</span>
+            </div>
+            <div class="vp-rows">
+              <div class="vp-row">
+                <span class="vp-ring" style="--f:.68"><svg viewBox="0 0 44 44"><circle class="track" cx="22" cy="22" r="18"/><circle class="arc" cx="22" cy="22" r="18"/></svg></span>
+                <span class="vp-tx"><b>Eye break</b><i>Every 20 min, for 20 s</i></span>
+                <span class="vp-time">12:40</span>
+              </div>
+              <div class="vp-row">
+                <span class="vp-ring" style="--f:.31"><svg viewBox="0 0 44 44"><circle class="track" cx="22" cy="22" r="18"/><circle class="arc" cx="22" cy="22" r="18"/></svg></span>
+                <span class="vp-tx"><b>Move break</b><i>Every 45 min, for 5 min</i></span>
+                <span class="vp-time">31:05</span>
+              </div>
+            </div>
+            <div class="lp-foot">
+              <span class="lp-label">Vista</span>
+              <span class="lp-hint">Break now<b>⌃⌥⌘B</b></span>
+              <span class="lp-hint">Pause<b>⌃⌥⌘P</b></span>
+            </div>
+          </div>
+        </div>
+        <div class="sec-head center">
+          <h2 id="look-title" class="rise" style="--d:.08s">Make it yours</h2>
+          <p class="rise" style="--d:.14s">Pick a material and a colour. Every panel and every break follows along — and so does this page.</p>
+          <div class="materials rise" style="--d:.2s" role="radiogroup" aria-label="Material">
+            <button type="button" class="mat" role="radio" aria-checked="false" data-mat="glass">Glass</button>
+            <button type="button" class="mat" role="radio" aria-checked="true" data-mat="ledger">Ledger</button>
+            <button type="button" class="mat" role="radio" aria-checked="false" data-mat="compact">Compact</button>
+          </div>
+          <div class="swatches rise" style="--d:.24s" role="radiogroup" aria-label="Colour"></div>
+          <p class="swatch-name" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="permission" class="sec sec-split reveal" data-stage="permission" aria-labelledby="perm-title">
+      <div class="glow" aria-hidden="true"></div>
+      <div class="container split">
+        <div class="split-copy">
+          <h2 id="perm-title" class="rise" data-granted="You're in">One permission</h2>
+          <p class="rise" style="--d:.06s">Notifications are how a break reaches you when Vista is in the background. Nothing else is read or sent. Calendar access is separate, optional, and only ever asks whether you are busy.</p>
+          <p class="perm-status rise" style="--d:.1s" data-granted="Notifications granted"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke-dasharray="3 3.4"/></svg><span>Not granted yet</span></p>
+        </div>
+        <div class="split-stage">
+          <div class="perm rise" style="--d:.08s">
+            <div class="perm-bar"><i></i><i></i><i></i><b>Notifications</b></div>
+            <p class="perm-lede">Allow notifications from the apps below.</p>
+            <div class="perm-list">
+              <div class="perm-row" aria-hidden="true"><span class="perm-ghost-icon"></span><span class="perm-ghost-name"></span><span class="sw on"><i></i></span></div>
+              <div class="perm-row mine">
+                <img class="perm-icon" src="icon.png" alt="" width="40" height="40" loading="lazy" />
+                <span class="perm-title">Vista<svg class="perm-ok" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="m7.5 12.3 3 3 6-6.3" fill="none" stroke="#0b1a10" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <button type="button" class="sw" role="switch" aria-checked="false" aria-label="Allow notifications from Vista"><i></i></button>
+                <span class="burst" aria-hidden="true"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <ul class="trust">
+          <li class="rise" style="--d:.06s"><b>Native SwiftUI</b><span>No Electron, no web views, no browser engine sitting in your menu bar.</span></li>
+          <li class="rise" style="--d:.1s"><b>Your record stays yours</b><span>Breaks and screen time live on your Mac. iCloud carries them between your own devices, in your private database, and nowhere else.</span></li>
+          <li class="rise" style="--d:.14s"><b>No account, no analytics</b><span>Nothing to sign up for and nothing counted. The only thing Vista fetches is its own updates.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="container">
+      <section id="soon" class="cta-band">
+        <h2>Coming soon.</h2>
+        <p class="lede">Vista is in testing on macOS 15. There is no download yet and no price set. Say the word and you will hear from us the day the first build is out.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="mailto:support@coursion.studio?subject=Vista%20waitlist" data-download>Email me when it ships</a>
+          <a class="btn outline" href="#features">See what's in it</a>
+        </div>
+        <p class="req-note">macOS 15 (Sequoia) or later · Pricing will be announced when it ships</p>
+      </section>
+    </div>
+  </main>
+
+  <div class="container">
+    <footer>
+      <div class="links">
+        <a href="#rhythms">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#soon">Coming soon</a>
+        <a href="mailto:support@coursion.studio">Support</a>
+      </div>
+      <div>© 2026 Coursion Studio</div>
+    </footer>
+  </div>
+</body>
+</html>
