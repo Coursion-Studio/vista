@@ -2,15 +2,15 @@
   "use strict";
 
   const NOTIFY_URL = "mailto:support@coursion.studio?subject=Vista";
-  const still = matchMedia("(prefers-reduced-motion: reduce)");
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
-  const typing = (el) => el && (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable);
+  const root = document.documentElement;
 
   clearTimeout(window.__rv);
   $$("[data-notify]").forEach((a) => { a.href = NOTIFY_URL; });
 
-  function watch(el, enter, leave, threshold = 0.35) {
+  function watch(el, enter, leave, threshold = 0.12) {
     if (!el) return;
     if (!("IntersectionObserver" in window)) { enter(); return; }
     new IntersectionObserver((entries) => {
@@ -19,222 +19,197 @@
   }
 
   $$(".reveal").forEach((el) => {
-    if (el.classList.contains("stage-hero") || el.classList.contains("page-stage")) {
+    if (el.classList.contains("hero")) {
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("in")));
-      watch(el, () => el.classList.add("live"), () => el.classList.remove("live"), 0);
       return;
     }
-    watch(el, () => el.classList.add("in"), null, 0.12);
+    watch(el, () => el.classList.add("in"));
   });
-  $$(".js-live").forEach((el) => watch(el, () => el.classList.add("live"), () => el.classList.remove("live"), 0.2));
 
-  const PALETTE = `
-    <div class="palette" role="dialog" aria-modal="true" aria-label="Search this site">
-      <div class="palette-bar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>
-        <input class="js-palette-input" type="text" placeholder="Jump to anything…" aria-label="Search this site" autocomplete="off" spellcheck="false" />
-        <kbd>esc</kbd>
-      </div>
-      <ul class="palette-results js-palette-results" role="listbox"></ul>
-      <div class="palette-foot"><span><kbd>↑</kbd><kbd>↓</kbd>Navigate</span><span><kbd>↩</kbd>Open</span><span class="spacer"></span><span>Look away from the screen once you've found it.</span></div>
-    </div>`;
+  const nav = $(".js-nav");
+  const sky = $(".sky");
+  const hero = $(".hero");
+  const bands = $$(".sky, .nav-sky");
+  const marks = $$("[data-sky]");
+  const darkFrom = $(".js-dark-from");
+  let tops = [], darkTop = Infinity, heroH = 0, navH = 54, vh = innerHeight, ticking = false, lastT = -1, lastY = -1;
 
-  (() => {
-    if (!$(".js-palette-open")) return;
-    let back = $(".js-palette");
-    if (!back) {
-      back = document.createElement("div");
-      back.className = "palette-backdrop js-palette";
-      back.hidden = true;
-      back.innerHTML = PALETTE;
-      document.body.prepend(back);
-    }
-    const input = $(".js-palette-input", back);
-    const list = $(".js-palette-results", back);
-    const ITEMS = [
-      { g: "Try it", mk: "◉", t: "An eye break, live", h: "Try it", go: "#break", pick: "eyes" },
-      { g: "Try it", mk: "↟", t: "A move break, live", h: "Try it", go: "#break", pick: "body" },
-      { g: "Try it", mk: "∥", t: "Smart pause — breaks that wait", h: "Try it", go: "#pause" },
-      { g: "Try it", mk: "≡", t: "Two rhythms, two clocks", h: "Try it", go: "#rhythms" },
-      { g: "Go", mk: "▦", t: "Everything Vista does", h: "Section", go: "#features" },
-      { g: "Go", mk: "◷", t: "With Apple Watch and iPhone", h: "Section", go: "#watch" },
-      { g: "Go", mk: "◐", t: "Themes and styles", h: "Section", go: "#themes" },
-      { g: "Go", mk: "✉", t: "Get notified when it's out", h: "Email", act: "notify" },
-      { g: "Pages", mk: "§", t: "Privacy", h: "Page", go: "privacy.html" },
-      { g: "Pages", mk: "@", t: "Send feedback", h: "Email", go: "mailto:feedback@coursion.studio?subject=Vista" },
-      { g: "Pages", mk: "@", t: "@kuraydev on X", h: "External", go: "https://x.com/kuraydev" }
-    ];
-    let shown = [], sel = 0, lastFocus = null;
-    const hit = (q, text) => {
-      const t = text.toLowerCase();
-      let n = 0;
-      for (const ch of q) { n = t.indexOf(ch, n); if (n < 0) return false; n++; }
-      return true;
-    };
-    function draw() {
-      const q = input.value.trim().toLowerCase();
-      shown = ITEMS.filter((it) => hit(q, it.t + " " + it.g));
-      sel = 0;
-      list.innerHTML = "";
-      if (!shown.length) {
-        const e = document.createElement("li");
-        e.className = "palette-empty";
-        e.textContent = "Nothing here. Maybe rest your eyes for twenty seconds.";
-        list.appendChild(e);
-        return;
-      }
-      let group = null;
-      shown.forEach((it, n) => {
-        if (it.g !== group) {
-          group = it.g;
-          const h = document.createElement("li");
-          h.className = "group";
-          h.textContent = group;
-          list.appendChild(h);
-        }
-        const li = document.createElement("li");
-        li.className = "item";
-        li.setAttribute("role", "option");
-        li.dataset.n = n;
-        li.innerHTML = '<span class="mk"></span><span class="lb"></span><span class="hint"></span>';
-        $(".mk", li).textContent = it.mk;
-        $(".lb", li).textContent = it.t;
-        $(".hint", li).textContent = it.h;
-        li.addEventListener("mousemove", () => { sel = n; mark(); });
-        li.addEventListener("click", () => { sel = n; go(); });
-        list.appendChild(li);
-      });
-      mark();
-    }
-    function mark() {
-      $$(".item", list).forEach((n) => {
-        const on = +n.dataset.n === sel;
-        n.setAttribute("aria-selected", on ? "true" : "false");
-        if (on) n.scrollIntoView({ block: "nearest" });
-      });
-    }
-    function go() {
-      const it = shown[sel];
-      if (!it) return;
-      close();
-      if (it.act === "notify") { location.href = NOTIFY_URL; return; }
-      if (/^mailto:/.test(it.go)) { location.href = it.go; return; }
-      if (/^https?:/.test(it.go)) { open(it.go, "_blank", "noopener"); return; }
-      if (it.go[0] === "#") {
-        const t = $(it.go);
-        if (t) {
-          if (it.pick) document.dispatchEvent(new CustomEvent("vista:pick", { detail: it.pick }));
-          t.scrollIntoView({ behavior: still.matches ? "auto" : "smooth", block: "start" });
-        } else location.href = "index.html" + it.go;
-        return;
-      }
-      location.href = it.go;
-    }
-    function openPalette() {
-      lastFocus = document.activeElement;
-      back.hidden = false;
-      requestAnimationFrame(() => back.classList.add("on"));
-      input.value = "";
-      draw();
-      input.focus();
-    }
-    function close() {
-      back.classList.remove("on");
-      setTimeout(() => { back.hidden = true; }, 170);
-      if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
-    }
-    $$(".js-palette-open").forEach((b) => b.addEventListener("click", openPalette));
-    input.addEventListener("input", draw);
-    back.addEventListener("mousedown", (e) => { if (e.target === back) close(); });
-    addEventListener("keydown", (e) => {
-      const isOpen = !back.hidden;
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); isOpen ? close() : openPalette(); return; }
-      if (!isOpen && e.key === "/" && !typing(document.activeElement)) { e.preventDefault(); openPalette(); return; }
-      if (!isOpen) return;
-      if (e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); close(); }
-      else if (e.key === "ArrowDown") { e.preventDefault(); sel = Math.min(sel + 1, shown.length - 1); mark(); }
-      else if (e.key === "ArrowUp") { e.preventDefault(); sel = Math.max(sel - 1, 0); mark(); }
-      else if (e.key === "Enter") { e.preventDefault(); go(); }
-    }, true);
-  })();
+  const live = !!(sky && marks.length > 1 && !still);
+  if (live) root.classList.add("sky-live");
 
-  (() => {
-    const bar = $(".js-bar");
-    if (!bar) return;
-    const nav = $(".js-bar-nav", bar);
-    const ink = $(".bar-ink", bar);
-    const menu = $(".js-bar-menu", bar);
-    const sheet = $(".js-bar-sheet", bar);
-    const links = $$("a[data-spy]", bar);
+  function measure() {
+    vh = innerHeight;
+    tops = marks.map((m) => m.getBoundingClientRect().top + scrollY);
+    tops.push(document.documentElement.scrollHeight);
+    heroH = hero ? hero.offsetHeight : 0;
+    navH = nav ? nav.offsetHeight : 54;
+    darkTop = darkFrom ? darkFrom.getBoundingClientRect().top + scrollY : Infinity;
+    paint();
+  }
 
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => { ticking = false; bar.classList.toggle("scrolled", scrollY > 12); });
-    };
+  function paint() {
+    ticking = false;
+    const y = scrollY;
+    if (nav) {
+      nav.classList.toggle("scrolled", y > 8);
+      nav.classList.toggle("dark", y + navH / 2 > darkTop);
+    }
+    if (!live) return;
+    const c = y + vh / 2;
+    const n = marks.length;
+    let k = 0;
+    while (k < n - 1 && c >= tops[k + 1]) k++;
+    const span = Math.max(1, tops[k + 1] - tops[k]);
+    const f = Math.min(1, Math.max(0, (c - tops[k]) / span));
+    const t = Math.min(1, (k + f) / (n - 1));
+    if (Math.abs(t - lastT) > 0.0004) {
+      lastT = t;
+      const v = t.toFixed(4);
+      bands.forEach((b) => b.style.setProperty("--t", v));
+    }
+    if (hero && y <= heroH + 40) {
+      const hy = Math.round(Math.min(y, heroH));
+      if (hy !== lastY) { lastY = hy; hero.style.setProperty("--y", hy); }
+    }
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(paint);
+  }
+
+  if (nav || live) {
     addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+    let rz = 0;
+    const remeasure = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(measure); };
+    addEventListener("resize", remeasure);
+    addEventListener("load", remeasure);
+    if (document.fonts) document.fonts.ready.then(remeasure);
+    if ("ResizeObserver" in window) new ResizeObserver(remeasure).observe(document.body);
+    measure();
+  }
 
-    let active = (links.find((a) => a.getAttribute("aria-current") === "page") || {}).dataset;
-    active = active ? active.spy : null;
-    function place() {
-      const a = active && $(`a[data-spy="${active}"]`, nav);
-      links.forEach((l) => l.classList.toggle("on", l.dataset.spy === active));
-      if (!a || !a.offsetWidth) { ink.classList.remove("on"); return; }
-      const inset = 12;
-      ink.style.transform = `translateX(${a.offsetLeft + inset}px) scaleX(${Math.max(1, a.offsetWidth - inset * 2)})`;
-      ink.classList.add("on");
-    }
-    if (!$("body.page")) {
+  if (nav) {
+    const links = $$("a[data-spy]", nav);
+    const targets = links.map((a) => document.getElementById(a.dataset.spy)).filter(Boolean);
+    if ("IntersectionObserver" in window && targets.length) {
       const seen = new Map();
-      const targets = links.map((a) => document.getElementById(a.dataset.spy)).filter(Boolean);
-      if ("IntersectionObserver" in window && targets.length) {
-        const io = new IntersectionObserver((entries) => {
-          entries.forEach((e) => seen.set(e.target.id, e.isIntersecting));
-          const hit = targets.find((t) => seen.get(t.id));
-          const next = hit ? hit.id : null;
-          if (next !== active) { active = next; place(); }
-        }, { rootMargin: "-40% 0px -55% 0px" });
-        targets.forEach((t) => io.observe(t));
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => seen.set(e.target.id, e.isIntersecting));
+        const hit = targets.find((t) => seen.get(t.id));
+        links.forEach((l) => l.classList.toggle("on", !!hit && l.dataset.spy === hit.id));
+      }, { rootMargin: "-45% 0px -50% 0px" });
+      targets.forEach((t) => io.observe(t));
+    }
+  }
+
+  (() => {
+    const pill = $(".js-pill");
+    const look = $(".js-look");
+    if (!pill || !look) return;
+    const time = $(".js-pill-time", pill);
+    const label = $(".js-pill-lbl", pill);
+    const lookTime = $(".js-look-time", look);
+    const title = $(".js-look-title", look);
+    const detail = $(".js-look-d", look);
+    const close = $(".js-look-close", look);
+    const RHYTHM = 20 * 60, REST = 20;
+    let due = Date.now() + RHYTHM * 1000, restEnd = 0, mode = "wait", hideTimer = 0, awayAt = 0, shownMin = -1, holdUntil = 0;
+
+    const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+    function setLabel(text, aria) {
+      if (label.textContent !== text) label.textContent = text;
+      pill.setAttribute("aria-label", aria);
+    }
+
+    function render() {
+      const now = Date.now();
+      if (mode === "wait") {
+        const left = Math.max(0, Math.ceil((due - now) / 1000));
+        time.textContent = fmt(left);
+        pill.classList.toggle("soon", left <= 10);
+        const min = Math.ceil(left / 60);
+        if (min !== shownMin && now >= holdUntil) {
+          shownMin = min;
+          setLabel("Next eye break", `Next eye break in ${min} minute${min === 1 ? "" : "s"}. Take it now.`);
+        }
+        if (left <= 0) begin();
+      } else if (mode === "rest") {
+        const left = Math.max(0, Math.ceil((restEnd - now) / 1000));
+        lookTime.textContent = `0:${String(left).padStart(2, "0")}`;
+        time.textContent = `0:${String(left).padStart(2, "0")}`;
+        if (left <= 0) finish();
       }
     }
-    place();
-    addEventListener("resize", place);
-    if (document.fonts) document.fonts.ready.then(place);
 
-    const focusable = () => [menu, ...$$("a, button", sheet)];
-    function openSheet() {
-      sheet.hidden = false;
-      bar.classList.add("open");
-      menu.setAttribute("aria-expanded", "true");
-      menu.setAttribute("aria-label", "Close menu");
-      sheet.classList.add("enter");
-      requestAnimationFrame(() => requestAnimationFrame(() => sheet.classList.remove("enter")));
-      $("a", sheet).focus();
+    function show() {
+      clearTimeout(hideTimer);
+      look.hidden = false;
+      requestAnimationFrame(() => requestAnimationFrame(() => look.classList.add("on")));
     }
-    function closeSheet(refocus = true) {
-      if (sheet.hidden) return;
-      bar.classList.remove("open");
-      menu.setAttribute("aria-expanded", "false");
-      menu.setAttribute("aria-label", "Menu");
-      sheet.hidden = true;
-      if (refocus) menu.focus();
+    function hide() {
+      look.classList.remove("on");
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => { look.hidden = true; }, 360);
     }
-    menu.addEventListener("click", () => (sheet.hidden ? openSheet() : closeSheet()));
-    $$("a", sheet).forEach((a) => a.addEventListener("click", () => closeSheet(false)));
-    const search = $(".js-bar-search", sheet);
-    if (search) search.addEventListener("click", () => { closeSheet(); const k = $(".bar-k", bar); if (k) k.click(); });
-    document.addEventListener("keydown", (e) => {
-      if (sheet.hidden) return;
-      if (e.key === "Escape") { e.preventDefault(); closeSheet(); return; }
-      if (e.key !== "Tab") return;
-      const f = focusable();
-      const i = f.indexOf(document.activeElement);
-      if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
-      else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+
+    function begin() {
+      mode = "rest";
+      restEnd = Date.now() + REST * 1000;
+      pill.classList.remove("soon");
+      setLabel("Look away", "Eye break in progress. Look away for 20 seconds.");
+      title.textContent = "Look away for 20 seconds";
+      detail.textContent = "Find the furthest thing you can see and rest your eyes on it. This page will wait.";
+      lookTime.hidden = false;
+      look.classList.remove("done");
+      show();
+      render();
+    }
+
+    function reset() {
+      mode = "wait";
+      due = Date.now() + RHYTHM * 1000;
+      shownMin = -1;
+      render();
+    }
+
+    function finish() {
+      reset();
+      title.textContent = "Welcome back";
+      detail.textContent = "That counts. The next one is in twenty minutes.";
+      lookTime.hidden = true;
+      look.classList.add("done");
+      hideTimer = setTimeout(hide, 4200);
+    }
+
+    function dismiss() {
+      if (look.hidden) return;
+      if (mode === "rest") reset();
+      hide();
+    }
+
+    pill.addEventListener("click", () => { if (mode === "rest") dismiss(); else begin(); });
+    close.addEventListener("click", dismiss);
+    addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || look.hidden || !look.classList.contains("on")) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      dismiss();
+    }, true);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) { awayAt = Date.now(); return; }
+      if (awayAt && Date.now() - awayAt >= REST * 1000 && mode === "wait") {
+        holdUntil = Date.now() + 5000;
+        reset();
+        setLabel("Time away counted", "You were away for a while, so that counts as an eye break. Next one in 20 minutes.");
+      }
+      awayAt = 0;
     });
-    document.addEventListener("pointerdown", (e) => { if (!sheet.hidden && !bar.contains(e.target)) closeSheet(false); });
-    matchMedia("(min-width: 761px)").addEventListener("change", (m) => { if (m.matches) closeSheet(false); });
+
+    render();
+    setInterval(render, 1000);
   })();
 })();

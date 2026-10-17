@@ -659,7 +659,7 @@
 
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape" || !live || mode !== "run" || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (typing(document.activeElement) || document.querySelector(".bar.open")) return;
+      if (typing(document.activeElement)) return;
       e.preventDefault();
       touched = true;
       const canSkip = elapsedNow() >= 5;
