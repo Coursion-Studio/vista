@@ -311,14 +311,26 @@
 .brk-detail { margin: 0; max-width: 470px; font-size: 14.5px; line-height: 1.55; color: var(--text-secondary); text-wrap: pretty; }
 .brk-scene { width: 320px; max-width: 100%; aspect-ratio: 320 / 150; margin: 18px 0 6px; }
 .brk-scene svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.brk-step { margin: 0; min-height: 1.4em; font: 650 17px/1.4 var(--rounded); color: var(--text-primary); transition: opacity 0.35s ease; }
-.brk-step.fade { opacity: 0; }
-.brk-ring { position: relative; width: 150px; height: 150px; margin-top: 16px; }
-.brk-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.brk-step { position: relative; display: grid; width: 100%; height: 1.4em; margin: 0; font: 650 17px/1.4 var(--rounded); color: var(--text-primary); }
+.brk-line { grid-area: 1 / 1; justify-self: center; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.brk-pips { display: flex; justify-content: center; gap: 4px; height: 3px; margin-top: 10px; }
+.brk-pips[data-single] { visibility: hidden; }
+.brk-pips i { position: relative; width: 18px; height: 3px; border-radius: 2px; overflow: hidden; background: rgb(255 255 255 / 0.14); }
+.brk-pips b { position: absolute; inset: 0; border-radius: inherit; background: var(--tint); transform: scaleX(0); transform-origin: left center; transition: background-color 0.4s ease; }
+.brk-ring { position: relative; width: 150px; height: 150px; margin-top: 14px; }
+.brk-ring svg { width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg); }
 .brk-ring circle { fill: none; stroke-width: 5; }
 .brk-ring .track { stroke: rgb(255 255 255 / 0.12); }
+.brk-ring .arc { filter: drop-shadow(0 0 8px color-mix(in srgb, var(--tint) 50%, transparent)); }
 .brk-ring .prog { stroke: var(--tint); stroke-linecap: round; stroke-dasharray: 1 1; transition: stroke 0.4s ease; }
-.brk-time { position: absolute; inset: 0; display: grid; place-items: center; font: 700 40px/1 var(--rounded); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.brk-ring .head { transform-origin: 100px 100px; transition: opacity 0.3s ease; }
+.brk-ring .head .dot { fill: var(--tint); stroke: none; transition: fill 0.4s ease; }
+.brk-ring .head .core { fill: rgb(255 255 255 / 0.85); stroke: none; }
+.brk.is-done .brk-ring .head { opacity: 0; }
+.brk-time { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 700 40px/1 var(--rounded); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; transition: color 0.3s ease; }
+.brk-time.urgent { color: var(--tint); }
+.brk-d { display: inline-grid; }
+.brk-d > span { grid-area: 1 / 1; }
 .brk-ctl { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .brk-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .brk-btn {
@@ -713,7 +725,8 @@
   .brk-head { font-size: 25px; margin-bottom: 0; }
   .brk-scene { margin: 12px 0 4px; }
   .brk-step { font-size: 15.5px; }
-  .brk-ring { width: 118px; height: 118px; margin-top: 12px; }
+  .brk-pips { margin-top: 8px; }
+  .brk-ring { width: 118px; height: 118px; margin-top: 10px; }
   .brk-time { font-size: 31px; }
   .brk-btns { gap: 7px; }
   .brk-btn { padding: 0 10px 0 9px; font-size: 12px; }

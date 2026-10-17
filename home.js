@@ -52,13 +52,13 @@
       kind: "eyes", chip: "Near and far", motion: "nearFar",
       headline: "Near and far",
       detail: "Thumb at arm's length, then something across the room. Swap focus between them ten times.",
-      steps: [["Focus on your thumb", 3], ["Now something across the room", 3]]
+      steps: [["Focus on your thumb", 5], ["Now something across the room", 5]]
     },
     "breathe": {
       kind: "eyes", chip: "Breathe", motion: "breathe",
       headline: "Breathe with the ring",
       detail: "In for four, out for six.",
-      steps: [["Breathe in", 4], ["Hold", 2], ["Breathe out", 6]]
+      steps: [["Breathe in, then hold", 6], ["Breathe out slowly", 6]]
     },
     "body.stand": {
       kind: "body", chip: "Stand and walk", motion: "walk",
@@ -341,6 +341,7 @@
       clock: $(".js-brk-clock", root), msg: $(".js-brk-msg", root), kind: $(".js-brk-kind", root),
       head: $(".js-brk-head", root), detail: $(".js-brk-detail", root), scene: $(".js-brk-scene", root),
       step: $(".js-brk-step", root), prog: $(".js-brk-prog", root), time: $(".js-brk-time", root),
+      pips: $(".js-brk-pips", root), dot: $(".js-brk-head-dot", root),
       snooze: $(".js-brk-snooze", root), skip: $(".js-brk-skip", root), skipLabel: $(".js-brk-skip-label", root),
       lock: $(".js-brk-lock", root), done: $(".js-brk-done", root), foot: $(".js-brk-foot", root), esc: $(".js-brk-esc", root),
       off: $(".js-brk-off", root), offMsg: $(".js-brk-off-msg", root), again: $(".js-brk-again", root),
@@ -350,11 +351,18 @@
     const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
     let ex = null, exId = null, ring = null, scene = null, live = false, touched = false;
     let armed = false, armTimer = 0, raf = 0, lastStep = "", mode = "run", endTimer = 0, skipMode = "";
+    let head = null, timeText = "", pipBars = [], pipFill = [];
+    const swapMs = still ? 200 : 400;
+    const swapEase = still ? "ease" : OUT;
 
     const playing = () => live && mode === "run";
     function setPlay() {
       const on = playing();
       if (ring) on ? ring.play() : ring.pause();
+      if (head) {
+        if (ring) head.currentTime = ring.currentTime;
+        on ? head.play() : head.pause();
+      }
       if (scene) {
         scene.anims.forEach((a) => (on ? a.play() : a.pause()));
         if (scene.svg.pauseAnimations) on ? scene.svg.unpauseAnimations() : scene.svg.pauseAnimations();
@@ -386,6 +394,105 @@
       ui.kinds.forEach((k) => k.setAttribute("aria-checked", k.dataset.kind === ex.kind ? "true" : "false"));
     }
 
+    function line(text) {
+      const span = document.createElement("span");
+      span.className = "brk-line";
+      span.textContent = text;
+      return span;
+    }
+
+    function setTip(text, swap) {
+      const cur = ui.step.querySelector(".brk-line:not([data-out])");
+      if (!swap || !cur) { ui.step.replaceChildren(line(text)); return; }
+      const next = line(text);
+      cur.dataset.out = "1";
+      cur.setAttribute("aria-hidden", "true");
+      ui.step.appendChild(next);
+      const out = still ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 1, transform: "translateY(0)" }, { opacity: 0, transform: "translateY(-6px)" }];
+      const inn = still ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "translateY(0)" }];
+      cur.animate(out, { duration: swapMs, easing: swapEase, fill: "forwards" }).onfinish = () => cur.remove();
+      next.animate(inn, { duration: swapMs, easing: swapEase, fill: "backwards" });
+    }
+
+    function buildPips() {
+      const steps = ex.steps;
+      ui.pips.replaceChildren();
+      pipBars = [];
+      pipFill = [];
+      if (steps.length < 2) { ui.pips.dataset.single = ""; return; }
+      delete ui.pips.dataset.single;
+      steps.forEach(() => {
+        const track = document.createElement("i");
+        const bar = document.createElement("b");
+        track.appendChild(bar);
+        ui.pips.appendChild(track);
+        pipBars.push(bar);
+        pipFill.push(0);
+      });
+    }
+
+    function paintPips(elapsed) {
+      if (pipBars.length < 2 || pipBars.length !== ex.steps.length) return;
+      const total = ex.steps.reduce((a, s) => a + s[1], 0);
+      let off = total > 0 ? (still ? Math.floor(elapsed + 1e-6) : elapsed) % total : 0;
+      ex.steps.forEach((s, i) => {
+        const f = Math.max(0, Math.min(1, off / s[1]));
+        off -= s[1];
+        if (f === pipFill[i]) return;
+        pipFill[i] = f;
+        pipBars[i].style.transform = `scaleX(${f})`;
+      });
+    }
+
+    function digit(ch) {
+      const span = document.createElement("span");
+      span.textContent = ch;
+      return span;
+    }
+
+    function setTime(text, remaining) {
+      ui.time.classList.toggle("urgent", remaining <= 5);
+      if (text === timeText) return;
+      const prev = timeText;
+      timeText = text;
+      const slots = Array.from(ui.time.children);
+      if (prev.length !== text.length || slots.length !== text.length) {
+        ui.time.replaceChildren(...Array.from(text, (ch) => {
+          const slot = document.createElement("span");
+          slot.className = "brk-d";
+          slot.appendChild(digit(ch));
+          return slot;
+        }));
+        return;
+      }
+      Array.from(text).forEach((ch, i) => {
+        if (ch === prev[i]) return;
+        const slot = slots[i];
+        const cur = slot.querySelector("span:not([data-out])");
+        const next = digit(ch);
+        slot.appendChild(next);
+        const ms = still ? 200 : 350;
+        if (cur) {
+          cur.dataset.out = "1";
+          cur.setAttribute("aria-hidden", "true");
+          const out = still ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 1, transform: "translateY(0)" }, { opacity: 0, transform: "translateY(-0.42em)" }];
+          cur.animate(out, { duration: ms, easing: swapEase, fill: "forwards" }).onfinish = () => cur.remove();
+        }
+        const inn = still ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: "translateY(0.42em)" }, { opacity: 1, transform: "translateY(0)" }];
+        next.animate(inn, { duration: ms, easing: swapEase, fill: "backwards" });
+      });
+    }
+
+    function makeDrain(seconds) {
+      const timing = { duration: seconds * 1000, easing: still ? `steps(${Math.round(seconds)}, end)` : "linear", fill: "forwards" };
+      if (ring) ring.cancel();
+      if (head) head.cancel();
+      ring = ui.prog.animate([{ strokeDashoffset: 0 }, { strokeDashoffset: 1 }], timing);
+      head = ui.dot.animate([{ transform: "rotate(360deg)" }, { transform: "rotate(0deg)" }], timing);
+      ring.pause();
+      head.pause();
+    }
+
     function fill() {
       ui.kind.textContent = ex.kind === "eyes" ? "Eye break" : "Move break";
       ui.head.textContent = ex.headline;
@@ -394,8 +501,9 @@
       scene = buildScene(ex, TINT[ex.kind], !still);
       ui.scene.replaceChildren(scene.svg);
       lastStep = ex.steps[0][0];
-      ui.step.textContent = lastStep;
-      ui.step.classList.remove("fade");
+      setTip(lastStep, false);
+      buildPips();
+      paintPips(0);
     }
 
     function start(id, fresh = true) {
@@ -408,8 +516,8 @@
       root.dataset.kind = ex.kind;
       if (prevKind !== ex.kind) renderChips(ex.kind);
       markChips();
-      if (ring) ring.cancel();
-      ring = makeRing(ui.prog, DURATION[ex.kind], false);
+      makeDrain(DURATION[ex.kind]);
+      root.classList.remove("is-done");
       const wasOff = root.classList.contains("is-off");
       root.classList.remove("is-off");
       hideOff();
@@ -428,7 +536,8 @@
     function controls(elapsed) {
       const dur = DURATION[ex.kind];
       const finished = mode === "done";
-      ui.time.textContent = clock(finished ? 0 : dur - elapsed);
+      const left = finished ? 0 : dur - elapsed;
+      setTime(clock(left), Math.max(0, Math.ceil(left - 1e-6)));
       ui.snooze.hidden = finished;
       ui.lock.hidden = finished;
       ui.skip.hidden = finished;
@@ -456,12 +565,9 @@
       const s = stepAt(ex.steps, elapsed)[0];
       if (s !== lastStep) {
         lastStep = s;
-        if (still) ui.step.textContent = s;
-        else {
-          ui.step.classList.add("fade");
-          setTimeout(() => { ui.step.textContent = lastStep; ui.step.classList.remove("fade"); }, 350);
-        }
+        setTip(s, true);
       }
+      paintPips(elapsed);
       if (elapsed >= dur) { finish(); return; }
       controls(elapsed);
       raf = requestAnimationFrame(tick);
@@ -470,6 +576,7 @@
     function finish() {
       mode = "done";
       disarm();
+      root.classList.add("is-done");
       controls(DURATION[ex.kind]);
       if (scene) scene.anims.forEach((a) => a.pause());
       if (!touched && live) {
