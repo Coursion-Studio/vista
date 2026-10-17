@@ -1,19 +1,12 @@
 #!/usr/bin/env python3
-"""Stamp local .css/.js references in every *.html with a content hash (?v=…).
-
-    python3 stamp-assets.py [SITE_DIR]
-
-Static hosts without a build step serve new HTML with old cached CSS, so a page
-renders markup its stylesheet has never seen. Run after any CSS/JS change; the
-hash only moves when the file does.
-"""
+"""Stamp local .css/.js references in every *.html with a content hash: python3 scripts/stamp-assets.py"""
 import hashlib
 import pathlib
 import re
 import sys
 
-root = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
-pattern = re.compile(r'(href|src)="([^":?#]+\.(?:css|js))(?:\?v=[0-9a-f]+)?"')
+root = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else pathlib.Path(__file__).resolve().parent.parent
+pattern = re.compile(r'(href|src)="(/?)([^":?#/][^":?#]*\.(?:css|js))(?:\?v=[0-9a-f]+)?"')
 digests = {}
 
 
@@ -29,8 +22,8 @@ for page in sorted(root.glob("*.html")):
     text = page.read_text()
 
     def stamp(m):
-        d = digest(m.group(2))
-        return f'{m.group(1)}="{m.group(2)}?v={d}"' if d else m.group(0)
+        d = digest(m.group(3))
+        return f'{m.group(1)}="{m.group(2)}{m.group(3)}?v={d}"' if d else m.group(0)
 
     stamped = pattern.sub(stamp, text)
     if stamped != text:
