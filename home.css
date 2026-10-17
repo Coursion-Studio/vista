@@ -321,9 +321,9 @@
 .brk-ring svg { width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg); }
 .brk-ring circle { fill: none; stroke-width: 5; }
 .brk-ring .track { stroke: rgb(255 255 255 / 0.12); }
-.brk-ring .arc { filter: drop-shadow(0 0 8px color-mix(in srgb, var(--tint) 50%, transparent)); }
-.brk-ring .prog { stroke: var(--tint); stroke-linecap: round; stroke-dasharray: 1 1; transition: stroke 0.4s ease; }
-.brk-ring .head { transform-origin: 100px 100px; transition: opacity 0.3s ease; }
+.brk-ring .dial line { stroke: rgb(255 255 255 / 0.12); stroke-width: 1.5; stroke-linecap: round; }
+.brk-ring .prog { filter: drop-shadow(0 0 8px color-mix(in srgb, var(--tint) 50%, transparent)); stroke: var(--tint); stroke-linecap: round; stroke-dasharray: 1 1; transition: stroke 0.4s ease; }
+.brk-ring .head { filter: drop-shadow(0 0 6px var(--tint)); transform-origin: 100px 100px; transition: opacity 0.3s ease; }
 .brk-ring .head .dot { fill: var(--tint); stroke: none; transition: fill 0.4s ease; }
 .brk-ring .head .core { fill: rgb(255 255 255 / 0.85); stroke: none; }
 .brk.is-done .brk-ring .head { opacity: 0; }

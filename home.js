@@ -347,6 +347,16 @@
       off: $(".js-brk-off", root), offMsg: $(".js-brk-off-msg", root), again: $(".js-brk-again", root),
       chips: $(".js-brk-chips", sec), status: $(".js-brk-status", sec), kinds: $$(".kind", sec)
     };
+    const dial = $(".js-brk-dial", root);
+    for (let i = 0; i < 60; i++) {
+      const a = i / 60 * 2 * Math.PI, outer = 96 - 5 - 8, inner = outer - (i % 5 === 0 ? 7 : 3.5);
+      const tick = document.createElementNS(SVG, "line");
+      tick.setAttribute("x1", 100 + Math.cos(a) * inner);
+      tick.setAttribute("y1", 100 + Math.sin(a) * inner);
+      tick.setAttribute("x2", 100 + Math.cos(a) * outer);
+      tick.setAttribute("y2", 100 + Math.sin(a) * outer);
+      dial.appendChild(tick);
+    }
     const skipIcon = ui.skip.querySelector("svg").outerHTML;
     const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
     let ex = null, exId = null, ring = null, scene = null, live = false, touched = false;
