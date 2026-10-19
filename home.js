@@ -301,42 +301,6 @@
         });
         break;
       }
-      case "walk": {
-        el("path", { d: "M40 108 Q160 40 280 108", fill: "none", stroke: quiet, "stroke-width": "1", "stroke-dasharray": "3 6", "stroke-linecap": "round" }, stage);
-        const count = 8;
-        for (let i = 0; i < count; i++) {
-          const t = i / (count - 1);
-          const x = 40 + t * 240;
-          const y = 108 - Math.sin(t * Math.PI) * 34 + (i % 2 === 0 ? -9 : 9);
-          const deg = (i % 2 === 0 ? -0.25 : 0.25) * 180 / Math.PI;
-          const g = el("g", { transform: `rotate(${deg} ${x} ${y})`, fill: soft }, stage);
-          el("ellipse", { cx: x, cy: y - 3, rx: 7, ry: 10 }, g);
-          el("ellipse", { cx: x, cy: y + 14.5, rx: 6, ry: 4.5 }, g);
-          g.style.opacity = animated ? "0" : "1";
-          const start = i / count;
-          const peak = Math.min(start + 0.06, 0.99);
-          const gone = Math.min(start + 0.5, 1);
-          animate(g, [0, 0, 1, 0, 0].map((o) => ({ opacity: o })), [0, start, peak, gone, 1], 4, "linear");
-        }
-        break;
-      }
-      case "shoulders": {
-        circle(98, 96, 12, { fill: "none", stroke: faint, "stroke-width": "1.5" });
-        circle(222, 96, 12, { fill: "none", stroke: faint, "stroke-width": "1.5" });
-        line(160, 61, 160, 80, ink, 3);
-        const frames = [];
-        for (let s = 0; s <= 12; s++) {
-          const a = s / 12 * 2 * Math.PI;
-          frames.push(shoulderPath(Math.sin(a) * 9, Math.cos(a) * 6));
-        }
-        const p = el("path", { d: frames[0], fill: "none", stroke: ink, "stroke-width": "3", "stroke-linecap": "round", "stroke-linejoin": "round" }, stage);
-        if (animated) {
-          el("animate", { attributeName: "d", values: frames.join(";"), dur: "3s", repeatCount: "indefinite", calcMode: "linear" }, p);
-        }
-        const head = circle(160, 44, 17, { fill: soft });
-        animate(head, [0, -4, 0, 2, 0].map((y) => ({ transform: `translateY(${y}px)` })), [0, 0.25, 0.5, 0.75, 1], 3, IN_OUT);
-        break;
-      }
       case "neck": {
         el("path", { d: shoulderPath(0, 0), fill: "none", stroke: ink, "stroke-width": "3", "stroke-linecap": "round" }, stage);
         const head = el("g", {}, stage);
@@ -346,103 +310,6 @@
         circle(153, 41, 2, { fill: ink }, head);
         circle(167, 41, 2, { fill: ink }, head);
         posesAnim(head, [[0, 10], [-0.42, 0], [0.42, 0], [0, -8]]);
-        break;
-      }
-      case "hips": {
-        const glow = el("radialGradient", { id: `${id}r`, cx: "0.5", cy: "0.5", r: "0.5" }, defs);
-        el("stop", { offset: "0", "stop-color": tint, "stop-opacity": "0.34" }, glow);
-        el("stop", { offset: "1", "stop-color": tint, "stop-opacity": "0" }, glow);
-        const blur = el("filter", { id: `${id}b`, x: "-50%", y: "-200%", width: "200%", height: "500%" }, defs);
-        el("feGaussianBlur", { stdDeviation: "3.2" }, blur);
-        el("ellipse", { cx: 160, cy: 72, rx: 96, ry: 70, fill: `url(#${id}r)` }, stage);
-        el("ellipse", { cx: 160, cy: 135, rx: 36, ry: 5, fill: rgba(tint, 0.5), filter: `url(#${id}b)` }, stage);
-        const limb = (pts, w, parent) => el("path", { d: "M" + pts.map((p) => p.join(" ")).join(" L"), fill: "none", stroke: tint, "stroke-width": w, "stroke-linecap": "round", "stroke-linejoin": "round" }, parent);
-        const head = (x, y, parent) => circle(x, y, 10.5, { fill: tint }, parent);
-        const torso = (parent) => limb([[160, 45], [160, 84]], 19, parent);
-        const draw = {
-          stand(g) {
-            head(160, 26, g);
-            torso(g);
-            limb([[154, 86], [151, 127]], 10.5, g);
-            limb([[166, 86], [169, 127]], 10.5, g);
-            limb([[149, 52], [134, 66], [149, 80]], 7.5, g);
-            limb([[171, 52], [186, 66], [171, 80]], 7.5, g);
-          },
-          knee(g) {
-            head(160, 26, g);
-            torso(g);
-            limb([[165, 86], [166, 127]], 10.5, g);
-            limb([[154, 86], [139, 66], [141, 98]], 10.5, g);
-            limb([[150, 50], [136, 34], [130, 16]], 7.5, g);
-            limb([[170, 50], [184, 34], [190, 16]], 7.5, g);
-          },
-          open(g) {
-            head(160, 26, g);
-            torso(g);
-            limb([[153, 86], [147, 127]], 10.5, g);
-            limb([[167, 86], [173, 127]], 10.5, g);
-            limb([[150, 51], [124, 62], [102, 74]], 7.5, g);
-            limb([[170, 51], [196, 62], [218, 74]], 7.5, g);
-          }
-        };
-        const fadeMs = still ? 200 : 700;
-        const poses = [["stand"], ["knee"], ["knee", true], ["open"]];
-        const layers = {};
-        const make = (key, draws, mirror) => {
-          const fade = el("g", {}, stage);
-          const pulse = el("g", {}, fade);
-          const flip = el("g", {}, pulse);
-          const art = el("g", {}, flip);
-          draw[draws](art);
-          if (mirror) art.setAttribute("transform", "translate(320 0) scale(-1 1)");
-          fade.style.transformOrigin = "160px 80px";
-          fade.style.opacity = "0";
-          fade.style.transform = still ? "none" : "scale(0.92)";
-          fade.style.transition = `opacity ${fadeMs}ms ${IN_OUT}` + (still ? "" : `, transform ${fadeMs}ms ${IN_OUT}`);
-          pulse.style.transformOrigin = "160px 80px";
-          flip.style.transformOrigin = "160px 80px";
-          if (animated) {
-            anims.push(pulse.animate([{ transform: "scale(1)", opacity: 1 }, { transform: "scale(1.03)", opacity: 0.85 }, { transform: "scale(1)", opacity: 1 }], { duration: 4000, iterations: Infinity, easing: "ease-in-out" }));
-          }
-          layers[key] = { fade, flip };
-        };
-        make("stand", "stand");
-        make("knee", "knee");
-        make("open", "open");
-        if (still) make("kneeR", "knee", true);
-        const keyFor = (i) => (still && i === 2 ? "kneeR" : poses[i][0]);
-        const show = (l, on) => {
-          l.fade.style.opacity = on ? "1" : "0";
-          if (!still) l.fade.style.transform = on ? "scale(1)" : "scale(0.92)";
-        };
-        let cur = -1;
-        setStep = (i, instant) => {
-          const nextKey = keyFor(i);
-          const prevKey = cur < 0 ? null : keyFor(cur);
-          if (!still && poses[i][1] && prevKey === "knee") {
-            layers.knee.flip.style.transition = `transform ${fadeMs}ms ${IN_OUT}`;
-            layers.knee.flip.style.transform = "perspective(520px) rotateY(180deg)";
-            cur = i;
-            return;
-          }
-          if (nextKey === prevKey) {
-            cur = i;
-            return;
-          }
-          if (instant) Object.values(layers).forEach((l) => (l.fade.style.transition = "none"));
-          if (!still && nextKey === "knee") {
-            layers.knee.flip.style.transition = "none";
-            layers.knee.flip.style.transform = "perspective(520px) rotateY(0deg)";
-          }
-          if (prevKey) show(layers[prevKey], false);
-          show(layers[nextKey], true);
-          cur = i;
-          if (instant) {
-            void stage.getBoundingClientRect();
-            Object.values(layers).forEach((l) => (l.fade.style.transition = `opacity ${fadeMs}ms ${IN_OUT}` + (still ? "" : `, transform ${fadeMs}ms ${IN_OUT}`)));
-          }
-        };
-        setStep(0, true);
         break;
       }
       case "water": {
@@ -649,7 +516,6 @@
       ui.detail.textContent = ex.detail;
       if (scene) scene.anims.forEach((a) => a.cancel());
       scene = buildScene(ex, TINT[ex.kind], !still, () => playing() && !document.hidden, exId);
-      ui.scene.classList.toggle("is-lottie", !!LOTTIE_EX[exId]);
       ui.scene.replaceChildren(scene.svg);
       scene.setStepNow(0);
       lastStep = ex.steps[0][0];
