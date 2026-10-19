@@ -73,10 +73,10 @@
       steps: [["Roll your shoulders back, ten times", 30], ["Open your chest, hands behind you", 30], ["Drop your ears to each shoulder", 40]]
     },
     "body.hips": {
-      kind: "body", chip: "Hips", motion: "hinge",
+      kind: "body", chip: "Hips", motion: "hips",
       headline: "Wake your hips",
       detail: "Stand, pull one knee to your chest, hold, swap. Sitting shortens the hip flexors; this gives them back.",
-      steps: [["Stand and hinge forward gently", 30], ["Lunge, left side", 30], ["Lunge, right side", 30], ["Stand tall and breathe", 20]]
+      steps: [["Stand tall, hands on your hips", 15], ["Left knee to your chest, hold", 30], ["Right knee to your chest, hold", 30], ["Stand tall and breathe", 15]]
     },
     "body.neck": {
       kind: "body", chip: "Neck", motion: "neck",
@@ -135,6 +135,7 @@
     const mask = el("mask", { id: `${id}m`, maskUnits: "userSpaceOnUse", x: "0", y: "0", width: "320", height: "150" }, defs);
     el("rect", { width: "320", height: "150", fill: `url(#${id}e)` }, mask);
     const stage = el("g", { mask: `url(#${id}m)` }, svg);
+    let setStep = () => {};
     const steps = ex.steps;
     const total = steps.reduce((a, s) => a + s[1], 0);
 
@@ -293,16 +294,101 @@
         posesAnim(head, [[0, 10], [-0.42, 0], [0.42, 0], [0, -8]]);
         break;
       }
-      case "hinge": {
-        line(90, 146, 230, 146, quiet, 1);
-        el("path", { d: "M146 146 L160 96 L174 146", fill: "none", stroke: ink, "stroke-width": "3", "stroke-linecap": "round", "stroke-linejoin": "round" }, stage);
-        const torso = el("g", {}, stage);
-        torso.style.transformOrigin = "160px 96px";
-        line(160, 96, 160, 50, ink, 3, torso);
-        line(160, 58, 140, 82, ink, 2.5, torso);
-        line(160, 58, 180, 82, ink, 2.5, torso);
-        circle(160, 36, 13, { fill: soft }, torso);
-        posesAnim(torso, [[0.9, 0], [-0.22, 6], [0.22, 6], [0, -2]]);
+      case "hips": {
+        const glow = el("radialGradient", { id: `${id}r`, cx: "0.5", cy: "0.5", r: "0.5" }, defs);
+        el("stop", { offset: "0", "stop-color": tint, "stop-opacity": "0.34" }, glow);
+        el("stop", { offset: "1", "stop-color": tint, "stop-opacity": "0" }, glow);
+        const blur = el("filter", { id: `${id}b`, x: "-50%", y: "-200%", width: "200%", height: "500%" }, defs);
+        el("feGaussianBlur", { stdDeviation: "3.2" }, blur);
+        el("ellipse", { cx: 160, cy: 72, rx: 96, ry: 70, fill: `url(#${id}r)` }, stage);
+        el("ellipse", { cx: 160, cy: 135, rx: 36, ry: 5, fill: rgba(tint, 0.5), filter: `url(#${id}b)` }, stage);
+        const limb = (pts, w, parent) => el("path", { d: "M" + pts.map((p) => p.join(" ")).join(" L"), fill: "none", stroke: tint, "stroke-width": w, "stroke-linecap": "round", "stroke-linejoin": "round" }, parent);
+        const head = (x, y, parent) => circle(x, y, 10.5, { fill: tint }, parent);
+        const torso = (parent) => limb([[160, 45], [160, 84]], 19, parent);
+        const draw = {
+          stand(g) {
+            head(160, 26, g);
+            torso(g);
+            limb([[154, 86], [151, 127]], 10.5, g);
+            limb([[166, 86], [169, 127]], 10.5, g);
+            limb([[149, 52], [134, 66], [149, 80]], 7.5, g);
+            limb([[171, 52], [186, 66], [171, 80]], 7.5, g);
+          },
+          knee(g) {
+            head(160, 26, g);
+            torso(g);
+            limb([[165, 86], [166, 127]], 10.5, g);
+            limb([[154, 86], [139, 66], [141, 98]], 10.5, g);
+            limb([[150, 50], [136, 34], [130, 16]], 7.5, g);
+            limb([[170, 50], [184, 34], [190, 16]], 7.5, g);
+          },
+          open(g) {
+            head(160, 26, g);
+            torso(g);
+            limb([[153, 86], [147, 127]], 10.5, g);
+            limb([[167, 86], [173, 127]], 10.5, g);
+            limb([[150, 51], [124, 62], [102, 74]], 7.5, g);
+            limb([[170, 51], [196, 62], [218, 74]], 7.5, g);
+          }
+        };
+        const fadeMs = still ? 200 : 700;
+        const poses = [["stand"], ["knee"], ["knee", true], ["open"]];
+        const layers = {};
+        const make = (key, draws, mirror) => {
+          const fade = el("g", {}, stage);
+          const pulse = el("g", {}, fade);
+          const flip = el("g", {}, pulse);
+          const art = el("g", {}, flip);
+          draw[draws](art);
+          if (mirror) art.setAttribute("transform", "translate(320 0) scale(-1 1)");
+          fade.style.transformOrigin = "160px 80px";
+          fade.style.opacity = "0";
+          fade.style.transform = still ? "none" : "scale(0.92)";
+          fade.style.transition = `opacity ${fadeMs}ms ${IN_OUT}` + (still ? "" : `, transform ${fadeMs}ms ${IN_OUT}`);
+          pulse.style.transformOrigin = "160px 80px";
+          flip.style.transformOrigin = "160px 80px";
+          if (animated) {
+            anims.push(pulse.animate([{ transform: "scale(1)", opacity: 1 }, { transform: "scale(1.03)", opacity: 0.85 }, { transform: "scale(1)", opacity: 1 }], { duration: 4000, iterations: Infinity, easing: "ease-in-out" }));
+          }
+          layers[key] = { fade, flip };
+        };
+        make("stand", "stand");
+        make("knee", "knee");
+        make("open", "open");
+        if (still) make("kneeR", "knee", true);
+        const keyFor = (i) => (still && i === 2 ? "kneeR" : poses[i][0]);
+        const show = (l, on) => {
+          l.fade.style.opacity = on ? "1" : "0";
+          if (!still) l.fade.style.transform = on ? "scale(1)" : "scale(0.92)";
+        };
+        let cur = -1;
+        setStep = (i, instant) => {
+          const nextKey = keyFor(i);
+          const prevKey = cur < 0 ? null : keyFor(cur);
+          if (!still && poses[i][1] && prevKey === "knee") {
+            layers.knee.flip.style.transition = `transform ${fadeMs}ms ${IN_OUT}`;
+            layers.knee.flip.style.transform = "perspective(520px) rotateY(180deg)";
+            cur = i;
+            return;
+          }
+          if (nextKey === prevKey) {
+            cur = i;
+            return;
+          }
+          if (instant) Object.values(layers).forEach((l) => (l.fade.style.transition = "none"));
+          if (!still && nextKey === "knee") {
+            layers.knee.flip.style.transition = "none";
+            layers.knee.flip.style.transform = "perspective(520px) rotateY(0deg)";
+          }
+          if (prevKey) show(layers[prevKey], false);
+          show(layers[nextKey], true);
+          cur = i;
+          if (instant) {
+            void stage.getBoundingClientRect();
+            Object.values(layers).forEach((l) => (l.fade.style.transition = `opacity ${fadeMs}ms ${IN_OUT}` + (still ? "" : `, transform ${fadeMs}ms ${IN_OUT}`)));
+          }
+        };
+        setStep(0, true);
         break;
       }
       case "water": {
@@ -324,7 +410,7 @@
         break;
       }
     }
-    return { svg, anims };
+    return { svg, anims, setStep: (i) => setStep(i, false), setStepNow: (i) => setStep(i, true) };
   }
 
   function makeRing(circle, seconds, playing) {
@@ -510,6 +596,7 @@
       if (scene) scene.anims.forEach((a) => a.cancel());
       scene = buildScene(ex, TINT[ex.kind], !still);
       ui.scene.replaceChildren(scene.svg);
+      scene.setStepNow(0);
       lastStep = ex.steps[0][0];
       setTip(lastStep, false);
       buildPips();
@@ -576,6 +663,7 @@
       if (s !== lastStep) {
         lastStep = s;
         setTip(s, true);
+        if (scene) scene.setStep(ex.steps.findIndex((x) => x[0] === s));
       }
       paintPips(elapsed);
       if (elapsed >= dur) { finish(); return; }
