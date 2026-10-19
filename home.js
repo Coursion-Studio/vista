@@ -108,9 +108,63 @@
     return steps[steps.length - 1];
   }
 
+  const LOTTIE_EX = { "body.stand": 1, "body.shoulders": 1, "body.hips": 1 };
+  let lottiePromise = null;
+  const lottieCache = {};
+
+  function loadLottie() {
+    if (!lottiePromise) {
+      lottiePromise = new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "lottie/lottie_light.min.js";
+        s.onload = () => resolve(window.lottie);
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+    return lottiePromise;
+  }
+
+  function loadData(id) {
+    if (!lottieCache[id]) lottieCache[id] = fetch(`lottie/${id}.json`).then((r) => r.json());
+    return lottieCache[id];
+  }
+
+  function buildLottieScene(id, tint, animated, isOn) {
+    const box = document.createElement("div");
+    box.className = "brk-lottie";
+    box.style.setProperty("--glow", tint);
+    const stageEl = document.createElement("div");
+    stageEl.className = "brk-lottie-stage";
+    box.appendChild(stageEl);
+    let anim = null, dead = false;
+    const shim = {
+      play() { if (anim) anim.play(); },
+      pause() { if (anim) anim.pause(); },
+      cancel() { dead = true; if (anim) { anim.destroy(); anim = null; } }
+    };
+    Promise.all([loadLottie(), loadData(id)]).then(([lottie, data]) => {
+      if (dead) return;
+      anim = lottie.loadAnimation({
+        container: stageEl, renderer: "svg", loop: true, autoplay: false,
+        animationData: JSON.parse(JSON.stringify(data)),
+        rendererSettings: { preserveAspectRatio: "xMidYMid meet" }
+      });
+      const ready = () => {
+        if (dead || !anim) return;
+        box.classList.add("is-ready");
+        if (!animated) anim.goToAndStop(Math.round(anim.totalFrames * 0.35), true);
+        else if (isOn()) anim.play();
+      };
+      anim.addEventListener("DOMLoaded", ready);
+    }).catch(() => {});
+    return { svg: box, anims: animated ? [shim] : [], setStep() {}, setStepNow() {} };
+  }
+
   let sceneSeq = 0;
 
-  function buildScene(ex, tint, animated) {
+  function buildScene(ex, tint, animated, isOn, exKey) {
+    if (LOTTIE_EX[exKey]) return buildLottieScene(exKey, tint, animated, isOn);
     const id = `sc${++sceneSeq}`;
     const anims = [];
     const svg = document.createElementNS(SVG, "svg");
@@ -460,7 +514,7 @@
         on ? head.play() : head.pause();
       }
       if (scene) {
-        scene.anims.forEach((a) => (on ? a.play() : a.pause()));
+        scene.anims.forEach((a) => (on && !document.hidden ? a.play() : a.pause()));
         if (scene.svg.pauseAnimations) on ? scene.svg.unpauseAnimations() : scene.svg.pauseAnimations();
       }
       cancelAnimationFrame(raf);
@@ -594,7 +648,8 @@
       ui.head.textContent = ex.headline;
       ui.detail.textContent = ex.detail;
       if (scene) scene.anims.forEach((a) => a.cancel());
-      scene = buildScene(ex, TINT[ex.kind], !still);
+      scene = buildScene(ex, TINT[ex.kind], !still, () => playing() && !document.hidden, exId);
+      ui.scene.classList.toggle("is-lottie", !!LOTTIE_EX[exId]);
       ui.scene.replaceChildren(scene.svg);
       scene.setStepNow(0);
       lastStep = ex.steps[0][0];
@@ -775,6 +830,7 @@
     setInterval(tickClock, 15000);
 
     start(ORDER.eyes[0], false);
+    document.addEventListener("visibilitychange", setPlay);
     onView(root, () => { live = true; setPlay(); }, () => { live = false; setPlay(); }, 0.3);
   })();
 
