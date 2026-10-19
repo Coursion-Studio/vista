@@ -1,14 +1,12 @@
 (() => {
   "use strict";
 
-  const NOTIFY_URL = "mailto:support@coursion.studio?subject=Vista";
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
   const root = document.documentElement;
 
   clearTimeout(window.__rv);
-  $$("[data-notify]").forEach((a) => { a.href = NOTIFY_URL; });
 
   function watch(el, enter, leave, threshold = 0.12) {
     if (!el) return;
