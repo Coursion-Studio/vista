@@ -6,7 +6,21 @@
     <description>Updates for Vista — eye and movement breaks for the Mac, from Coursion.</description>
     <language>en</language>
   
+    
     <item>
+      <title>Version 0.2.1</title>
+      <pubDate>Mon, 19 Oct 2026 20:54:38 +0300</pubDate>
+      <sparkle:version>4</sparkle:version>
+      <sparkle:shortVersionString>0.2.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<p><em>2026-10-19</em></p>
+<ul>
+<li><strong>Move breaks, drawn like the eye breaks</strong> — Light, rings and lines in the break&#x27;s colour show the motion instead of a figure: a point that rises and walks out and back, shoulders that roll, a knee that folds, a ring that tips ear to shoulder, a glass that fills and empties.</li>
+<li><strong>Neck steps that match the advice</strong> — Ear to each shoulder, then chin gently back, not down.</li>
+</ul>]]></description>
+      <enclosure url="https://github.com/Coursion-Studio/vista/releases/download/v0.2.1/Vista-0.2.1.dmg" type="application/octet-stream" sparkle:edSignature="ZeTkCcvwWlaFRD5peDXPDRXYTJtcQfIuJbOMkYwYbtvPMz82eTH/ujLSnx91NpFm+17JCNGf+g/3/DvFGH3nBg==" length="10363720" />
+    </item>
+<item>
       <title>Version 0.2.0</title>
       <pubDate>Mon, 19 Oct 2026 14:14:14 +0300</pubDate>
       <sparkle:version>3</sparkle:version>
