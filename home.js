@@ -73,7 +73,7 @@
       steps: [["Roll your shoulders back, ten times", 30], ["Open your chest, hands behind you", 30], ["Drop your ears to each shoulder", 40]]
     },
     "body.hips": {
-      kind: "body", chip: "Hips", motion: "hips",
+      kind: "body", chip: "Hips", motion: "hinge",
       headline: "Wake your hips",
       detail: "Stand, pull one knee to your chest, hold, swap. Sitting shortens the hip flexors; this gives them back.",
       steps: [["Stand tall, hands on your hips", 15], ["Left knee to your chest, hold", 30], ["Right knee to your chest, hold", 30], ["Stand tall and breathe", 15]]
@@ -82,7 +82,7 @@
       kind: "body", chip: "Neck", motion: "neck",
       headline: "Lengthen your neck",
       detail: "Ear toward shoulder, slow, both sides. Then chin gently back — not down — to unstack the forward head tilt.",
-      steps: [["Chin to chest, slowly", 20], ["Ear to left shoulder", 25], ["Ear to right shoulder", 25], ["Look up, jaw loose", 20]]
+      steps: [["Ear to your left shoulder", 25], ["Ear to your right shoulder", 25], ["Chin gently back", 20], ["Shoulders down, breathe", 20]]
     },
     "body.water": {
       kind: "body", chip: "Glass of water", motion: "water",
@@ -108,63 +108,368 @@
     return steps[steps.length - 1];
   }
 
-  const LOTTIE_EX = { "body.stand": 1, "body.shoulders": 1, "body.hips": 1 };
-  let lottiePromise = null;
-  const lottieCache = {};
-
-  function loadLottie() {
-    if (!lottiePromise) {
-      lottiePromise = new Promise((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = "lottie/lottie_light.min.js";
-        s.onload = () => resolve(window.lottie);
-        s.onerror = reject;
-        document.head.appendChild(s);
-      });
+  const bez = (x1, y1, x2, y2, x) => {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 24; i++) {
+      const s = (lo + hi) / 2;
+      const cx = 3 * (1 - s) * (1 - s) * s * x1 + 3 * (1 - s) * s * s * x2 + s * s * s;
+      if (cx < x) lo = s; else hi = s;
     }
-    return lottiePromise;
-  }
+    const s = (lo + hi) / 2;
+    return 3 * (1 - s) * (1 - s) * s * y1 + 3 * (1 - s) * s * s * y2 + s * s * s;
+  };
+  const inOut = (x) => bez(0.77, 0, 0.175, 1, x);
+  const easeOut = (x) => bez(0.23, 1, 0.32, 1, x);
+  const unit = (t, a, b) => Math.min(Math.max((t - a) / (b - a), 0), 1);
+  const move = (t, a, b) => inOut(unit(t, a, b));
+  const bump = (t, a, b, c, d) => move(t, a, b) - move(t, c, d);
+  const wave = (t, p) => 0.5 - 0.5 * Math.cos(2 * Math.PI * t / p);
+  const num = (v) => Math.round(v * 100) / 100;
 
-  function loadData(id) {
-    if (!lottieCache[id]) lottieCache[id] = fetch(`lottie/${id}.json`).then((r) => r.json());
-    return lottieCache[id];
-  }
-
-  function buildLottieScene(id, tint, animated, isOn) {
-    const box = document.createElement("div");
-    box.className = "brk-lottie";
-    box.style.setProperty("--glow", tint);
-    const stageEl = document.createElement("div");
-    stageEl.className = "brk-lottie-stage";
-    box.appendChild(stageEl);
-    let anim = null, dead = false;
-    const shim = {
-      play() { if (anim) anim.play(); },
-      pause() { if (anim) anim.pause(); },
-      cancel() { dead = true; if (anim) { anim.destroy(); anim = null; } }
+  function moveScene(motion, c) {
+    const { stage, defs, id, tint, animated, steps, faint, soft, ink, quiet } = c;
+    const el = (name, attrs, parent = stage) => c.el(name, attrs, parent);
+    const white = (a) => `rgba(255, 255, 255, ${a})`;
+    const glows = {};
+    let glowSeq = 0;
+    const glow = (r, alpha, parent = stage) => {
+      const key = String(alpha);
+      if (!glows[key]) {
+        const g = el("radialGradient", { id: `${id}g${glowSeq++}`, cx: "0.5", cy: "0.5", r: "0.5" }, defs);
+        el("stop", { offset: "0", "stop-color": tint, "stop-opacity": alpha }, g);
+        el("stop", { offset: "1", "stop-color": tint, "stop-opacity": "0" }, g);
+        glows[key] = g.id;
+      }
+      return el("circle", { r, fill: `url(#${glows[key]})` }, parent);
     };
-    Promise.all([loadLottie(), loadData(id)]).then(([lottie, data]) => {
-      if (dead) return;
-      anim = lottie.loadAnimation({
-        container: stageEl, renderer: "svg", loop: true, autoplay: false,
-        animationData: JSON.parse(JSON.stringify(data)),
-        rendererSettings: { preserveAspectRatio: "xMidYMid meet" }
+    const circ = (r, attrs = {}, parent = stage) => el("circle", Object.assign({ r }, attrs), parent);
+    const ln = (x1, y1, x2, y2, stroke, w, dash) => {
+      const a = { x1, y1, x2, y2, stroke, "stroke-width": w, "stroke-linecap": "round" };
+      if (dash) a["stroke-dasharray"] = dash;
+      return el("line", a);
+    };
+    const poly = (pts, stroke, w, dash, parent = stage) => {
+      const a = { d: "M" + pts.map((p) => `${num(p[0])} ${num(p[1])}`).join(" L"), fill: "none", stroke, "stroke-width": w, "stroke-linecap": "round", "stroke-linejoin": "round" };
+      if (dash) a["stroke-dasharray"] = dash;
+      return el("path", a, parent);
+    };
+    const put = (n, x, y, s = 1, r = 0) => {
+      n.setAttribute("transform", `translate(${num(x)} ${num(y)}) rotate(${num(r * 180 / Math.PI)}) scale(${num(s)})`);
+    };
+    const op = (n, o) => n.setAttribute("opacity", num(Math.max(0, Math.min(1, o))));
+    const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+    const phases = (fallback) => {
+      const lens = steps.length === fallback.length ? steps.map((s) => s[1]) : fallback;
+      let cur = 0;
+      return lens.map((l) => { const p = { start: cur, end: cur + l }; cur += l; return p; });
+    };
+    const pulse = (n, cx, cy, t, start, life, from, to, peak) => {
+      const age = unit(t, start, start + life);
+      put(n, cx, cy, from + (to - from) * easeOut(age));
+      op(n, peak * unit(t, start - 0.05, start + life * 0.12) * Math.pow(1 - age, 1.5));
+    };
+    const comet = (count, lag, radius, position) => {
+      if (!animated) return () => {};
+      const dots = [];
+      for (let k = 1; k <= count; k++) {
+        const share = k / (count + 1);
+        dots.push([circ(radius * (1 - 0.55 * share), { fill: rgba(tint, 0.4 * (1 - share)) }), lag * k]);
+      }
+      return (t) => dots.forEach(([n, delay]) => {
+        const a = position(t), b = position(t - delay);
+        put(n, b[0], b[1]);
+        op(n, dist(a, b) / 5);
       });
-      const ready = () => {
-        if (dead || !anim) return;
-        box.classList.add("is-ready");
-        if (!animated) anim.goToAndStop(Math.round(anim.totalFrames * 0.35), true);
-        else if (isOn()) anim.play();
+    };
+    const hillsPath = (base, amp, waves) => {
+      const seg = 320 / waves;
+      let d = `M0 150 L0 ${base}`;
+      for (let i = 0; i < waves; i++) d += ` Q${i * seg + seg / 2} ${base - amp * 2} ${(i + 1) * seg} ${base}`;
+      return d + " L320 150 Z";
+    };
+
+    if (motion === "walk") {
+      const ph = phases([20, 120, 100]);
+      const total = ph[2].end;
+      const seat = 116, stand = 56;
+      const home = [70, stand], far = [258, 66], outC = [164, 6], backC = [164, 118];
+      const riseEnd = 5, outStart = ph[1].start + 1.5, outEnd = ph[1].end - 1.5;
+      const backStart = ph[2].start + 1.5, backEnd = total - 7, sinkStart = total - 5.5, sinkEnd = total - 1.5;
+      const still = outStart + (outEnd - outStart) * 0.42;
+      const curve = (a, k, b, u) => [(1 - u) * (1 - u) * a[0] + 2 * (1 - u) * u * k[0] + u * u * b[0], (1 - u) * (1 - u) * a[1] + 2 * (1 - u) * u * k[1] + u * u * b[1]];
+      const gait = (u) => 0.5 * u + 0.5 * inOut(u);
+      const state = (t) => {
+        if (t >= sinkStart) return { p: [home[0], stand + (seat - stand) * move(t, sinkStart, sinkEnd)], d: 1 };
+        if (t >= backStart) { const u = gait(unit(t, backStart, backEnd)); return { p: curve(far, backC, home, u), d: 0.5 + 0.5 * u }; }
+        if (t >= outStart) { const u = gait(unit(t, outStart, outEnd)); return { p: curve(home, outC, far, u), d: 1 - 0.5 * u }; }
+        return { p: [home[0], seat - (seat - stand) * move(t, 1, riseEnd)], d: 1 };
       };
-      anim.addEventListener("DOMLoaded", ready);
-    }).catch(() => {});
-    return { svg: box, anims: animated ? [shim] : [], setStep() {}, setStepNow() {} };
+      el("path", { d: hillsPath(100, 6, 3), fill: rgba(tint, 0.1) }, stage);
+      el("path", { d: hillsPath(130, 9, 2), fill: rgba(tint, 0.2) }, stage);
+      const arc = (a, k, b) => Array.from({ length: 31 }, (_, i) => curve(a, k, b, i / 30));
+      poly(arc(home, outC, far), quiet, 1, "2 5");
+      poly(arc(far, backC, home), quiet, 1, "2 5");
+      ln(70, seat - 6, 70, stand + 6, quiet, 1, "2 5");
+      ln(44, seat, 96, seat, soft, 2);
+      ln(52, stand, 88, stand, quiet, 1);
+      ln(214, far[1], 304, far[1], quiet, 1);
+      const hz = glow(34, 0.5);
+      put(hz, far[0], far[1]);
+      const prints = [];
+      let stamp = outStart + 2.5, side = 1;
+      while (stamp < backEnd - 1) {
+        if (stamp > outEnd - 2 && stamp < backStart + 1) { stamp = backStart + 2.5; continue; }
+        const at = state(stamp);
+        prints.push({ n: circ(6, { fill: "none", stroke: white(0.6), "stroke-width": 1.5 }), x: at.p[0], y: at.p[1] + 5 * side, d: at.d, start: stamp });
+        stamp += 3.5;
+        side = -side;
+      }
+      const ripples = [riseEnd, backEnd].map((m) => ({ n: circ(14, { fill: "none", stroke: soft, "stroke-width": 1.5 }), start: m }));
+      const walker = el("g", {}, stage);
+      glow(18, 0.5, walker);
+      circ(7, { fill: faint, stroke: ink, "stroke-width": 2 }, walker);
+      circ(2.5, { fill: ink }, walker);
+      return (e) => {
+        const t = animated ? e % total : still;
+        const s = state(t);
+        op(hz, 0.35 + 0.65 * (1 - (s.d - 0.5) * 2));
+        prints.forEach((p) => pulse(p.n, p.x, p.y, t, p.start, 14, 0.3 * p.d, 2.1 * p.d, 1));
+        ripples.forEach((r) => pulse(r.n, home[0], home[1], t, r.start, 4, 0.4, 2.2, 0.9));
+        put(walker, s.p[0], s.p[1], s.d);
+        op(walker, 0.45 + 0.55 * (s.d - 0.5) * 2);
+      };
+    }
+
+    if (motion === "shoulders") {
+      const ph = phases([30, 30, 40]);
+      const total = ph[2].end;
+      const pivot = [160, 88], arm = 54;
+      const still = ph[1].start + 14;
+      const turn = (ph[0].end - ph[0].start) / 10;
+      const amplitude = (t) => bump(t, 0.4, 1.4, ph[0].end - 1.2, ph[0].end - 0.2);
+      const wing = (t) => 0.46 * bump(t, ph[1].start + 0.8, ph[1].start + 5.5, ph[1].end - 5.5, ph[1].end - 0.8);
+      const tipL = (t) => bump(t, ph[2].start + 1, ph[2].start + 5, ph[2].start + 16, ph[2].start + 19);
+      const tipR = (t) => bump(t, ph[2].start + 21, ph[2].start + 25, ph[2].start + 36, ph[2].start + 39);
+      const wingHold = (t) => bump(t, ph[1].start + 3, ph[1].start + 6, ph[1].end - 6, ph[1].end - 3);
+      const rest = (side, t) => {
+        const a = wing(t), phase = 2 * Math.PI * t / turn, amp = amplitude(t);
+        return [pivot[0] + side * arm * Math.cos(a) - side * 6 * Math.sin(phase) * amp, pivot[1] - arm * Math.sin(a) - 9 * Math.cos(phase) * amp];
+      };
+      const tip = (t) => {
+        const a = -0.95 * tipL(t) + 0.95 * tipR(t);
+        return [pivot[0] + 34 * Math.sin(a), pivot[1] - 34 * Math.cos(a)];
+      };
+      ln(70, 124, 250, 124, quiet, 1);
+      const tracks = [-1, 1].map((s) => el("ellipse", { cx: pivot[0] + s * arm, cy: pivot[1], rx: 6, ry: 9, fill: "none", stroke: quiet, "stroke-width": 1 }));
+      const tg = [-1, 1].map((s) => { const g = glow(30, 0.7); put(g, pivot[0] + s * arm, pivot[1]); return g; });
+      const bars = [-1, 1].map((s) => el("rect", { x: s < 0 ? -arm : 0, y: -4, width: arm, height: 8, rx: 4, fill: faint, stroke: soft, "stroke-width": 1.5 }));
+      const sides = [-1, 1].map((s) => {
+        const trail = comet(5, 0.12, 8, (t) => rest(s, t));
+        return { s, trail, ring: circ(9, { fill: "none", stroke: ink, "stroke-width": 2 }) };
+      });
+      const halo = glow(20, 0.55);
+      const core = circ(4.5, { fill: ink });
+      return (e) => {
+        const t = animated ? e % total : still;
+        const am = amplitude(t), w = wing(t), l = tipL(t), r = tipR(t);
+        tracks.forEach((n) => op(n, am * 0.9));
+        op(tg[0], l);
+        op(tg[1], r);
+        bars.forEach((n, i) => put(n, pivot[0], pivot[1], 1, -[-1, 1][i] * w));
+        sides.forEach(({ s, trail, ring }) => {
+          trail(t);
+          const p = rest(s, t);
+          put(ring, p[0], p[1], 1 + 0.14 * (s < 0 ? l : r));
+        });
+        const q = tip(t);
+        put(halo, q[0], q[1], 1 + 0.3 * wave(t, 4) * Math.min(1, l + r + wingHold(t)));
+        put(core, q[0], q[1]);
+      };
+    }
+
+    if (motion === "hinge") {
+      const ph = phases([15, 30, 30, 15]);
+      const total = ph[3].end;
+      const pivots = [[124, 34], [196, 34]], length = 50, target = [160, 66], fold = 0.93;
+      const still = ph[1].start + 17;
+      const lift = (i, t) => bump(t, ph[i + 1].start + 0.8, ph[i + 1].start + 5, ph[i + 1].end - 5, ph[i + 1].end - 0.8);
+      const angle = (i, t) => {
+        const h = lift(i, t);
+        return fold * h + 0.035 * Math.sin(2 * Math.PI * (t - ph[i + 1].start) / 5) * h;
+      };
+      ln(96, 118, 224, 118, quiet, 1);
+      ln(100, 34, 220, 34, quiet, 1);
+      pivots.forEach((p, i) => {
+        const side = i === 0 ? 1 : -1;
+        poly(Array.from({ length: 25 }, (_, k) => { const a = fold * k / 24; return [p[0] + side * length * Math.sin(a), p[1] + length * Math.cos(a)]; }), quiet, 1, "2 5");
+      });
+      const halo = glow(26, 0.6);
+      put(halo, target[0], target[1]);
+      const core = circ(4, { fill: ink });
+      put(core, target[0], target[1]);
+      const caps = pivots.map((p) => {
+        const g = el("g", {}, stage);
+        const lit = el("rect", { x: -6, y: 0, width: 12, height: length, rx: 6, fill: soft }, g);
+        el("rect", { x: -6, y: 0, width: 12, height: length, rx: 6, fill: faint, stroke: ink, "stroke-width": 2 }, g);
+        circ(3.5, { fill: ink, transform: `translate(${p[0]} ${p[1]})` });
+        return { g, lit };
+      });
+      return (e) => {
+        const t = animated ? e % total : still;
+        const any = Math.max(lift(0, t), lift(1, t));
+        op(halo, 0.3 + 0.7 * any);
+        put(halo, target[0], target[1], 1 + 0.4 * wave(t, 5) * any + 0.08 * wave(t, 6));
+        op(core, 0.5 + 0.5 * any);
+        caps.forEach((c2, i) => {
+          const side = i === 0 ? 1 : -1;
+          put(c2.g, pivots[i][0], pivots[i][1], 1, -side * angle(i, t));
+          op(c2.lit, lift(i, t));
+        });
+      };
+    }
+
+    if (motion === "neck") {
+      const ph = phases([25, 25, 20, 20]);
+      const total = ph[3].end;
+      const radius = 12, restY = 102;
+      const still = ph[0].start + 14;
+      const cradle = (s) => [160 + 100 * s, 66 + 36 * (1 - s * s)];
+      const toL = (t) => bump(t, ph[0].start + 1, ph[0].start + 5.5, ph[0].end - 5, ph[0].end - 1);
+      const toR = (t) => bump(t, ph[1].start + 1, ph[1].start + 5.5, ph[1].end - 5, ph[1].end - 1);
+      const back = (t) => bump(t, ph[2].start + 1, ph[2].start + 5, ph[2].end - 6, ph[2].end - 1.5);
+      const slide = (t) => bump(t, ph[2].start + 0.2, ph[2].start + 1.6, ph[2].end - 1.4, ph[2].end - 0.2);
+      const position = (t) => {
+        const p = cradle(toR(t) - toL(t));
+        return [p[0] + 58 * back(t), p[1]];
+      };
+      poly(Array.from({ length: 41 }, (_, i) => cradle(i / 20 - 1)), quiet, 1.2);
+      const guide = ln(120, restY, 232, restY, quiet, 1.2, "2 5");
+      const guideEnd = circ(3.5, { fill: soft });
+      put(guideEnd, 226, restY);
+      const ends = [-1, 1].map((s) => {
+        const p = cradle(s);
+        const halo = glow(34, 0.75);
+        const cap = circ(4, { fill: soft });
+        return { p, halo, cap };
+      });
+      const trail = comet(5, 0.22, 6.5, position);
+      const ring = el("g", {}, stage);
+      circ(radius, { fill: faint, stroke: ink, "stroke-width": 2 }, ring);
+      circ(2, { fill: ink, cy: -7 }, ring);
+      return (e) => {
+        const t = animated ? e % total : still;
+        const sl = slide(t);
+        op(guide, sl);
+        op(guideEnd, sl);
+        ends.forEach((x, i) => {
+          const h = i === 0 ? toL(t) : toR(t);
+          op(x.halo, h);
+          put(x.halo, x.p[0], x.p[1], 0.9 + 0.25 * wave(t, 5) * h);
+          put(x.cap, x.p[0], x.p[1], 1 + 0.6 * h);
+        });
+        trail(t);
+        const p = position(t), b = back(t);
+        put(ring, p[0], p[1], 1 - 0.3 * b, (p[0] - 160) / radius);
+        op(ring, 1 - 0.3 * b);
+      };
+    }
+
+    if (motion === "water") {
+      const ph = phases([60, 30, 60]);
+      const total = ph[2].end;
+      const still = ph[1].end - 2;
+      const fillStart = ph[1].start + 1, fillEnd = ph[1].end - 1;
+      const sips = [0, 1, 2, 3, 4].map((k) => ph[2].start + 4 + 11 * k);
+      const level = (t) => {
+        let v = 0.85 * move(t, fillStart, fillEnd);
+        sips.forEach((s) => { v -= 0.17 * move(t, s, s + 1.8); });
+        return Math.max(v, 0);
+      };
+      const surface = (t) => 132 - level(t) * 92;
+      const glassPath = (inset, closed) => {
+        const top = closed ? 24 : 32, widen = closed ? 1.2 : 0;
+        return `M${124 + inset - widen} ${top} L${133 + inset} 114 Q${133.5 + inset} ${122 - inset} ${141 + inset} ${122 - inset} L${179 - inset} ${122 - inset} Q${186.5 - inset} ${122 - inset} ${187 - inset} 114 L${196 - inset + widen} ${top}${closed ? " Z" : ""}`;
+      };
+      ln(18, 122, 302, 122, quiet, 1);
+      const floor = glow(60, 0.35);
+      floor.setAttribute("transform", "translate(160 122) scale(1 0.22)");
+      const aura = glow(80, 0.5);
+      put(aura, 160, 76);
+      const clip = el("clipPath", { id: `${id}w` }, defs);
+      el("path", { d: glassPath(1.5, true) }, clip);
+      const inside = el("g", { "clip-path": `url(#${id}w)` }, stage);
+      const water = el("g", {}, inside);
+      const span = 48;
+      const waves = [{ amp: 3.2, phase: 0, loop: 4.2, dir: 1, a: 0.45 }, { amp: 2.4, phase: 2.1, loop: 5.6, dir: -1, a: 0.22 }].map((w, i) => {
+        const g = el("g", {}, water);
+        const crest = Array.from({ length: Math.floor((330 + span * 2) / 3) + 1 }, (_, k) => [k * 3, w.amp * Math.sin(2 * Math.PI * (k * 3 / span) + w.phase)]);
+        const last = crest[crest.length - 1][0];
+        el("path", { d: "M" + crest.map((p) => `${num(p[0])} ${num(p[1])}`).join(" L") + ` L${last} 130 L0 130 Z`, fill: rgba(tint, w.a) }, g);
+        if (i === 0) poly(crest, white(0.5), 1.5, null, g);
+        return Object.assign(w, { g });
+      });
+      const seeds = [[142, 3.1, 0.1, 2.2], [152, 4.0, 0.55, 1.6], [160, 3.5, 0.3, 2.8], [170, 4.4, 0.8, 1.8], [180, 2.9, 0.45, 2.0], [148, 3.8, 0.7, 1.5], [174, 4.2, 0.2, 2.4]]
+        .map(([x, period, offset, r]) => ({ x, period, offset, n: circ(r, { fill: "none", stroke: white(0.55), "stroke-width": 1 }) }));
+      ln(131, 40, 137, 104, quiet, 1.5);
+      el("path", { d: glassPath(0, false), fill: "none", stroke: ink, "stroke-width": 2.5, "stroke-linecap": "round", "stroke-linejoin": "round" });
+      const drops = [];
+      let walker = null, prints = [];
+      const arrive = ph[0].end - 5;
+      const wx = (t) => 24 + 76 * (0.5 * unit(t, 2, arrive) + 0.5 * move(t, 2, arrive));
+      if (animated) {
+        for (let emit = fillStart + 0.4; emit < fillEnd - 1.6; emit += 1.7) {
+          const land = emit + 0.7;
+          drops.push({
+            emit, land, rim: surface(land),
+            drop: circ(2.6, { fill: ink }),
+            ripple: el("ellipse", { cx: 0, cy: 0, rx: 14, ry: 3.5, fill: "none", stroke: soft, "stroke-width": 1.2 }, stage)
+          });
+        }
+        walker = el("g", {}, stage);
+        glow(16, 0.4, walker);
+        circ(4, { fill: ink }, walker);
+        for (let s = 6; s < arrive - 3; s += 3.5) {
+          prints.push({ s, n: circ(6, { fill: "none", stroke: soft, "stroke-width": 1.2 }) });
+        }
+      }
+      return (e) => {
+        const t = animated ? e % total : still;
+        op(aura, 0.3 + 0.7 * level(t));
+        water.setAttribute("transform", `translate(0 ${num(surface(t))})`);
+        waves.forEach((w) => {
+          const tt = animated ? e % w.loop : 0.4 * w.loop;
+          const x = w.dir > 0 ? -span * (1 - tt / w.loop) : -span * (tt / w.loop);
+          w.g.setAttribute("transform", `translate(${num(x)} 0)`);
+        });
+        const gate = (tt) => bump(tt, fillStart + 1.5, fillStart + 4, fillEnd + 1, fillEnd + 5);
+        const depth = Math.min(Math.max((116 - surface(t)) / 24, 0), 1);
+        seeds.forEach((b) => {
+          const u = ((t / b.period) + b.offset) % 1;
+          const y = 116 - (116 - (surface(t) + 5)) * u;
+          put(b.n, b.x + 3.5 * Math.sin(2 * Math.PI * (u * 2 + b.offset)), y);
+          op(b.n, Math.max(Math.min(u / 0.15, (1 - u) / 0.25, 1), 0) * gate(t) * depth);
+        });
+        drops.forEach((d) => {
+          const u = unit(t, d.emit, d.land);
+          put(d.drop, 160, 12 + (d.rim - 12) * u * u);
+          op(d.drop, unit(t, d.emit - 0.05, d.emit) - unit(t, d.land, d.land + 0.05));
+          pulse(d.ripple, 160, d.rim, t, d.land, 1.1, 0.2, 1.3, 0.8);
+        });
+        if (walker) {
+          put(walker, wx(t), 120);
+          op(walker, move(t, 0.2, 1.8) - move(t, arrive - 0.5, arrive + 4));
+          prints.forEach((p) => pulse(p.n, wx(p.s), 120, t, p.s, 8, 0.3, 2, 0.8));
+        }
+      };
+    }
+    return () => {};
   }
 
   let sceneSeq = 0;
 
-  function buildScene(ex, tint, animated, isOn, exKey) {
-    if (LOTTIE_EX[exKey]) return buildLottieScene(exKey, tint, animated, isOn);
+  function buildScene(ex, tint, animated) {
     const id = `sc${++sceneSeq}`;
     const anims = [];
     const svg = document.createElementNS(SVG, "svg");
@@ -189,7 +494,7 @@
     const mask = el("mask", { id: `${id}m`, maskUnits: "userSpaceOnUse", x: "0", y: "0", width: "320", height: "150" }, defs);
     el("rect", { width: "320", height: "150", fill: `url(#${id}e)` }, mask);
     const stage = el("g", { mask: `url(#${id}m)` }, svg);
-    let setStep = () => {};
+    let update = null;
     const steps = ex.steps;
     const total = steps.reduce((a, s) => a + s[1], 0);
 
@@ -207,25 +512,6 @@
       for (let i = 0; i < waves; i++) d += ` Q${i * seg + seg / 2} ${base - amp * 2} ${(i + 1) * seg} ${base}`;
       return d + " L320 150 Z";
     };
-    const shoulderPath = (lift, roll) =>
-      `M${98 + roll} ${104 - lift} Q120 ${84 - lift} 160 82 Q200 ${84 - lift} ${222 - roll} ${104 - lift}`;
-    const posesAnim = (node, poses) => {
-      if (!animated || total <= 0) return;
-      const times = [0], rot = [0], drop = [0];
-      let t = 0;
-      steps.forEach((s, i) => {
-        if (i >= poses.length) return;
-        const ease = Math.min(1.6, s[1] / 4);
-        times.push((t + ease) / total, (t + s[1] - ease) / total, (t + s[1]) / total);
-        rot.push(poses[i][0], poses[i][0], 0);
-        drop.push(poses[i][1], poses[i][1], 0);
-        t += s[1];
-      });
-      if (t < total) { times.push(1); rot.push(0); drop.push(0); }
-      const frames = times.map((_, i) => ({ transform: `translate(0px, ${drop[i]}px) rotate(${rot[i] * 180 / Math.PI}deg)` }));
-      animate(node, frames, times, total, IN_OUT);
-    };
-
     function eye(cycle, closeAt, openAt, holdClosed) {
       const almond = "M-75 0 Q0 -74 75 0 Q0 74 -75 0 Z";
       const shut = 2 / 74;
@@ -301,37 +587,16 @@
         });
         break;
       }
-      case "neck": {
-        el("path", { d: shoulderPath(0, 0), fill: "none", stroke: ink, "stroke-width": "3", "stroke-linecap": "round" }, stage);
-        const head = el("g", {}, stage);
-        head.style.transformOrigin = "160px 80px";
-        line(160, 61, 160, 80, ink, 3, head);
-        circle(160, 44, 17, { fill: soft }, head);
-        circle(153, 41, 2, { fill: ink }, head);
-        circle(167, 41, 2, { fill: ink }, head);
-        posesAnim(head, [[0, 10], [-0.42, 0], [0.42, 0], [0, -8]]);
+      case "walk":
+      case "shoulders":
+      case "hinge":
+      case "neck":
+      case "water":
+        update = moveScene(ex.motion, { el, stage, defs, id, tint, animated, steps, faint, soft, ink, quiet });
+        update(0);
         break;
-      }
-      case "water": {
-        const glass = "M130 28 L137 132 L183 132 L190 28";
-        for (let i = 0; i < 3; i++) {
-          const d = circle(160, 14, 2.5, { fill: soft });
-          if (animated) {
-            anims.push(d.animate([{ transform: "translateY(-6px)" }, { transform: "translateY(46px)" }], { duration: 700, iterations: Infinity, easing: EASE_IN, delay: i * 230 }));
-          } else d.style.opacity = "0";
-        }
-        const clip = el("clipPath", { id: `${id}g` }, defs);
-        el("path", { d: glass }, clip);
-        const fill = el("g", { "clip-path": `url(#${id}g)` }, stage);
-        const body = el("rect", { x: 120, y: 30, width: 80, height: 104, fill: soft }, fill);
-        body.style.transformOrigin = "160px 134px";
-        body.style.transform = `scaleY(${animated ? 0.1 : 0.78})`;
-        animate(body, [0.08, 0.8, 0.8, 0.08].map((s) => ({ transform: `scaleY(${s})` })), [0, 0.55, 0.88, 1], 7, OUT);
-        el("path", { d: glass, fill: "none", stroke: ink, "stroke-width": "2.5", "stroke-linecap": "round", "stroke-linejoin": "round" }, stage);
-        break;
-      }
     }
-    return { svg, anims, setStep: (i) => setStep(i, false), setStepNow: (i) => setStep(i, true) };
+    return { svg, anims, update };
   }
 
   function makeRing(circle, seconds, playing) {
@@ -515,9 +780,8 @@
       ui.head.textContent = ex.headline;
       ui.detail.textContent = ex.detail;
       if (scene) scene.anims.forEach((a) => a.cancel());
-      scene = buildScene(ex, TINT[ex.kind], !still, () => playing() && !document.hidden, exId);
+      scene = buildScene(ex, TINT[ex.kind], !still);
       ui.scene.replaceChildren(scene.svg);
-      scene.setStepNow(0);
       lastStep = ex.steps[0][0];
       setTip(lastStep, false);
       buildPips();
@@ -580,11 +844,11 @@
       if (!ring || !playing()) return;
       const dur = DURATION[ex.kind];
       const elapsed = Math.min(dur, (ring.currentTime || 0) / 1000);
+      if (scene && scene.update) scene.update(elapsed);
       const s = stepAt(ex.steps, elapsed)[0];
       if (s !== lastStep) {
         lastStep = s;
         setTip(s, true);
-        if (scene) scene.setStep(ex.steps.findIndex((x) => x[0] === s));
       }
       paintPips(elapsed);
       if (elapsed >= dur) { finish(); return; }
