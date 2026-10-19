@@ -5,5 +5,37 @@
     <link>https://vista.coursion.studio/appcast.xml</link>
     <description>Updates for Vista — eye and movement breaks for the Mac, from Coursion.</description>
     <language>en</language>
-  </channel>
+  
+    <item>
+      <title>Version 0.2.0</title>
+      <pubDate>Mon, 19 Oct 2026 14:14:14 +0300</pubDate>
+      <sparkle:version>3</sparkle:version>
+      <sparkle:shortVersionString>0.2.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<p><em>2026-10-18</em></p>
+<ul>
+<li><strong>Breaks that actually happen</strong> — A still keyboard is no longer mistaken for time away. Reading, a video or a quiet call keeps the rhythm going; locking the screen or stepping away for five minutes still counts.</li>
+<li><strong>Any day, any hour</strong> — No schedule by default, so the rhythm runs whenever you are at the Mac. Set working hours if you want weekends off.</li>
+<li><strong>Something to follow</strong> — Every exercise has its own scene: the horizon, a blinking eye, palming, near and far, breathing rings, footsteps, shoulder rolls, hip hinges, neck stretches, a glass of water.</li>
+<li><strong>A countdown you can feel</strong> — A glowing ring with a minute dial, digits that roll, and tips that stay long enough to read.</li>
+<li><strong>Today and Insights</strong> — The dashboard joins the settings window: two rhythm rings, the day as a timeline, and what Vista sees right now.</li>
+<li><strong>Smart pause</strong> — A break waits through calls, busy calendar events, a Focus with Vista&#x27;s filter on, deep-focus apps, full-screen apps and games, video, and the sentence you are in the middle of. It knows which app has the microphone, and a muted meeting still counts.</li>
+<li><strong>Two rhythms, never back to back</strong> — Nothing lands within ten minutes of a break ending, and a move break rests your eyes too.</li>
+<li><strong>A heads-up first</strong> — A card a minute ahead with Start now, +1, +5 and +15, then a five-second countdown by the cursor.</li>
+<li><strong>A calmer break screen</strong> — Your desktop blurs behind one instruction, a draining ring and the countdown. Escape twice skips.</li>
+<li><strong>Guided breaks</strong> — A dot to follow for near and far, paced blinking, a breathing circle, stepped stretches.</li>
+<li><strong>Planned breaks</strong> — Lunch, a walk, anything at a fixed time.</li>
+<li><strong>Presets and quick timers</strong> — Balanced, Deep focus, Eye care, Wellness, and one-tap choices for both rhythms.</li>
+<li><strong>Skipping on your terms</strong> — Casual, Balanced or Hardcore, a daily snooze budget, and End break once three quarters are done.</li>
+<li><strong>Posture and blink reminders</strong> — Quiet nudges between breaks, off until you want them.</li>
+<li><strong>Make it yours</strong> — Backgrounds, your own words, chimes, automations, Shortcuts actions and two global hotkeys.</li>
+<li><strong>Your day, honestly</strong> — Screen time, stretches, top apps, a screen score, the week, and a Friday summary.</li>
+<li><strong>A rhythm coach</strong> — After a fortnight, one suggested change from how you actually break.</li>
+<li><strong>Time away counts</strong> — Vista says when it counted a break for you, and lets you take it back.</li>
+<li><strong>A new first run</strong> — The welcome tour, reopenable from General.</li>
+<li><strong>A warmer look</strong> — Warm ink, one accent, hairline rules, and settings in one sidebar window.</li>
+</ul>]]></description>
+      <enclosure url="https://github.com/Coursion-Studio/vista/releases/download/v0.2.0/Vista-0.2.0.dmg" type="application/octet-stream" sparkle:edSignature="hYB20fM90Ac44e/+NQ5GrmtUF4rnF0fdLbFc2KSL0ccrAdiYocfwDw+l5tx/3A3CyHN4sJSFeXv/jzOrkMMtDQ==" length="12133978" />
+    </item>
+</channel>
 </rss>
