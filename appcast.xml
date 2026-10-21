@@ -7,7 +7,20 @@
     <language>en</language>
   
     
+    
     <item>
+      <title>Version 0.2.2</title>
+      <pubDate>Wed, 21 Oct 2026 15:03:07 +0300</pubDate>
+      <sparkle:version>5</sparkle:version>
+      <sparkle:shortVersionString>0.2.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<p><em>2026-10-21</em></p>
+<ul>
+<li><strong>Fixed: Vista would not open</strong> — 0.2.0 and 0.2.1 were signed with the wrong provisioning profile, so macOS refused to start them. This build opens, keeps iCloud sync, and updates itself from here on.</li>
+</ul>]]></description>
+      <enclosure url="https://github.com/Coursion-Studio/vista/releases/download/v0.2.2/Vista-0.2.2.dmg" type="application/octet-stream" sparkle:edSignature="1rtuI/73tnXTGQvM00lSWzgws5XJ/ylW7EeN/n24TiefI70X5MocF04OHA5vn7/xtYGHd1Inf8pEYEYbqOVHAA==" length="10361311" />
+    </item>
+<item>
       <title>Version 0.2.1</title>
       <pubDate>Mon, 19 Oct 2026 20:54:38 +0300</pubDate>
       <sparkle:version>4</sparkle:version>
