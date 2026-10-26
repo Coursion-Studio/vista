@@ -8,7 +8,22 @@
   
     
     
+    
     <item>
+      <title>Version 0.2.3</title>
+      <pubDate>Mon, 26 Oct 2026 23:17:35 +0300</pubDate>
+      <sparkle:version>6</sparkle:version>
+      <sparkle:shortVersionString>0.2.3</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<p><em>2026-10-26</em></p>
+<ul>
+<li><strong>Muted meetings stay meetings</strong> — Google Meet, Slack huddles and other calls in a browser or app count as a call for as long as that app keeps the call going, even with your microphone muted and camera off. Breaks wait until it ends.</li>
+<li><strong>Browsers recognised properly</strong> — A browser&#x27;s audio and microphone helpers now count as the browser itself, so a call in Dia, Chrome or Arc is seen as one app.</li>
+<li><strong>Vista&#x27;s own mark in the menu bar</strong> — The sun over the hills, instead of a camera icon during calls.</li>
+</ul>]]></description>
+      <enclosure url="https://github.com/Coursion-Studio/vista/releases/download/v0.2.3/Vista-0.2.3.dmg" type="application/octet-stream" sparkle:edSignature="bheuumiz5OVLTkHGMSe/ZLzt3hG3MfgfQHsoDqwm4SfgUijrivaPLnlqVjvqt0zAeXlZ7v4vOSvegx7QSukqDg==" length="10381947" />
+    </item>
+<item>
       <title>Version 0.2.2</title>
       <pubDate>Wed, 21 Oct 2026 15:03:07 +0300</pubDate>
       <sparkle:version>5</sparkle:version>
